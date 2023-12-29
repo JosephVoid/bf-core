@@ -10,6 +10,12 @@ import jakarta.persistence.Table;
 @Entity
 @Table(schema = "desire_tags")
 public class DesireTags {
+    
+    public DesireTags(Integer tagId, Integer desireId) {
+        TagId = tagId;
+        DesireId = desireId;
+    }
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
