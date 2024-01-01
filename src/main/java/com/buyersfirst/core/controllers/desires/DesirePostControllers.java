@@ -2,6 +2,8 @@ package com.buyersfirst.core.controllers.desires;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,8 @@ import com.buyersfirst.core.models.DesireTagsRepository;
 import com.buyersfirst.core.models.Desires;
 import com.buyersfirst.core.models.DesiresRepository;
 import com.buyersfirst.core.services.TokenParser;
+
+import jakarta.security.auth.message.AuthException;
 
 @RestController
 @RequestMapping(path = "/desires", method = RequestMethod.POST)
@@ -69,8 +73,49 @@ public class DesirePostControllers {
     }
 
     @PostMapping(path = "/{id}/recreate")
-    public @ResponseBody Desires reCreateDesires (@PathVariable Integer id) {
-        return new Desires();
+    public @ResponseBody Desires reCreateDesires (@RequestHeader("Authorization") String auth, @PathVariable Integer id) {
+        try {
+            Integer userId = tokenParser.getUserId(auth);
+            /* Get the desire to recreate from */
+            Optional<Desires> oldDesire = desiresRepository.findById(id);
+            if (!oldDesire.isPresent())
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire does not exist");
+            /* Close the previous desire */
+            desiresRepository.UpdateIsClosedStatus(oldDesire.get().getId(), 1);
+            /* Save desire */
+            Desires desire = new Desires();
+            desire.setCreated(new Timestamp(System.currentTimeMillis()));
+            desire.setTitle(
+                oldDesire.get().getTitle().contains("[Repost]") ? 
+                oldDesire.get().getTitle() : 
+                "[Repost] "+oldDesire.get().getTitle()
+            );
+            desire.setDescription(oldDesire.get().getDescription());
+            desire.setDesiredPrice(oldDesire.get().getDesiredPrice());
+            desire.setIsClosed(0);
+            desire.setOwnerId(userId);
+            desire.setPicture(oldDesire.get().getPicture());
+
+            Desires savedDesire =  desiresRepository.save(desire);
+
+            /* Save Desire Tag relation */
+            ArrayList<DesireTags> desireTags = new ArrayList<DesireTags>();
+            List<DesireTags> oldDesireTags = desireTagsRepository.findByDesireId(oldDesire.get().getId());
+            for (int i = 0; i < oldDesireTags.size(); i++) {
+                desireTags.add(new DesireTags(oldDesireTags.get(i).getTagId(), savedDesire.getId()));
+            }
+            desireTagsRepository.saveAll(desireTags);
+
+            return savedDesire;
+
+        } catch (AuthException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Auth Header Issue");
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            System.out.println(e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Error");
+        }
     }
 
     @PostMapping(path = "/{desire}/close")
