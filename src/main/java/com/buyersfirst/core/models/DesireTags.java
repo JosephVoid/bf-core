@@ -16,6 +16,8 @@ public class DesireTags {
         DesireId = desireId;
     }
     
+    public DesireTags () {}
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
