@@ -1,5 +1,7 @@
 package com.buyersfirst.core.models;
 
+import java.sql.Timestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,4 +30,13 @@ public class Views {
 
     @Column(name = "bid_id", nullable = true)
     private Integer BidId;
+
+    @Column(name = "viewed_on")
+    private Timestamp ViewedOn;
+    public Timestamp getViewedOn() {
+        return ViewedOn;
+    }
+    public void setViewedOn(Timestamp viewedOn) {
+        ViewedOn = viewedOn;
+    }
 }

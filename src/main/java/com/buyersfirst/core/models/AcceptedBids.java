@@ -1,5 +1,7 @@
 package com.buyersfirst.core.models;
 
+import java.sql.Timestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -37,5 +39,14 @@ public class AcceptedBids {
     }
     public void setBidId(Integer bidId) {
         BidId = bidId;
+    }
+
+    @Column(name = "accepted_on")
+    private Timestamp AcceptedOn;
+    public Timestamp getAcceptedOn() {
+        return AcceptedOn;
+    }
+    public void setAcceptedOn(Timestamp acceptedOn) {
+        AcceptedOn = acceptedOn;
     }
 }

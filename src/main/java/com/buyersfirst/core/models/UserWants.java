@@ -1,5 +1,7 @@
 package com.buyersfirst.core.models;
 
+import java.sql.Timestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,6 +28,15 @@ public class UserWants {
     @Column(name = "desire_id")
     private Integer DesireId;
 
+    @Column(name = "wanted_on")
+    private Timestamp WantedOn;
+
+    public Timestamp getWantedOn() {
+        return WantedOn;
+    }
+    public void setWantedOn(Timestamp wantedOn) {
+        WantedOn = wantedOn;
+    }
     public Integer getUserId() {
         return UserId;
     }
