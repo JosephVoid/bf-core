@@ -22,6 +22,7 @@ import com.buyersfirst.core.models.DesireTags;
 import com.buyersfirst.core.models.DesireTagsRepository;
 import com.buyersfirst.core.models.Desires;
 import com.buyersfirst.core.models.DesiresRepository;
+import com.buyersfirst.core.models.UserWantsRepository;
 import com.buyersfirst.core.services.TokenParser;
 
 import jakarta.security.auth.message.AuthException;
@@ -35,6 +36,8 @@ public class DesirePostControllers {
     DesiresRepository desiresRepository;
     @Autowired
     DesireTagsRepository desireTagsRepository;
+    @Autowired
+    UserWantsRepository userWantsRepository;
 
     @PostMapping(path = "/create")
     public @ResponseBody Desires createDesires (@RequestHeader("Authorization") String auth, @RequestBody CreateDesiresRqB request) {
@@ -118,18 +121,80 @@ public class DesirePostControllers {
         }
     }
 
-    @PostMapping(path = "/{desire}/close")
-    public @ResponseBody Desires closeDesires (@PathVariable Integer desire) {
-        return new Desires();
+    @PostMapping(path = "/{id}/close")
+    public @ResponseBody Desires closeDesires (@RequestHeader("Authorization") String auth, @PathVariable Integer id) {
+        try {
+            tokenParser.getUserId(auth);
+            /* Check if the desire is there */
+            Optional<Desires> desire = desiresRepository.findById(id);
+            if (!desire.isPresent())
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire does not exist");
+            /* Close the desire if not closed already*/
+            if (desire.get().getIsClosed() == 0)
+                desiresRepository.UpdateIsClosedStatus(id, 1);
+            else
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire already closed");
+            return desiresRepository.findById(id).get();
+
+        } catch (AuthException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Auth Header Issue");
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            System.out.println(e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Error");
+        }
     }
 
-    @PostMapping(path = "/want/{desire}")
-    public @ResponseBody Desires wantDesires (@PathVariable Integer desire) {
-        return new Desires();
+    @PostMapping(path = "/want/{id}")
+    public @ResponseBody Desires wantDesires (@RequestHeader("Authorization") String auth, @PathVariable Integer id) {
+        try {
+            Integer userId = tokenParser.getUserId(auth);
+            /* Check if the desire is there */
+            Optional<Desires> desire = desiresRepository.findById(id);
+            if (!desire.isPresent())
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire does not exist");
+            /* Check if there is a Want before */
+            if (userWantsRepository.findByDesireUserId(id, userId).size() > 0)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire already wanted by user");
+            /* Want the desire */
+            userWantsRepository.addUserWants(id, userId, new Timestamp(System.currentTimeMillis()));
+
+            return desire.get();
+
+        } catch (AuthException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Auth Header Issue");
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            System.out.println(e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Error");
+        }
     }
 
-    @PostMapping(path = "/not-want/{desire}")
-    public @ResponseBody Desires notWantDesires (@PathVariable Integer desire) {
-        return new Desires();
+    @PostMapping(path = "/not-want/{id}")
+    public @ResponseBody Desires notWantDesires (@RequestHeader("Authorization") String auth, @PathVariable Integer id) {
+        try {
+            Integer userId = tokenParser.getUserId(auth);
+            /* Check if the desire is there */
+            Optional<Desires> desire = desiresRepository.findById(id);
+            if (!desire.isPresent())
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire does not exist");
+            /* Check if there is a Want before */
+            if (userWantsRepository.findByDesireUserId(id, userId).size() == 0)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire was never wanted by user before");
+            /* Want the desire */
+            userWantsRepository.removeUserWants(id, userId);
+
+            return desire.get();
+
+        } catch (AuthException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Auth Header Issue");
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            System.out.println(e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Error");
+        }
     }
 }
