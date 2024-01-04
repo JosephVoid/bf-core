@@ -2,6 +2,7 @@ package com.buyersfirst.core.controllers.desires;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,9 +13,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
 import com.buyersfirst.core.interfaces.DesireListRsp;
 import com.buyersfirst.core.interfaces.SingleDesire;
+import com.buyersfirst.core.models.Bids;
+import com.buyersfirst.core.models.BidsRepository;
 import com.buyersfirst.core.models.DesiresRepository;
 
 @RestController
@@ -23,6 +25,8 @@ public class DesireGetControllers {
 
     @Autowired
     DesiresRepository desiresRepository;
+    @Autowired
+    BidsRepository bidsRepository;
 
     @GetMapping(path = "/all")
     public @ResponseBody ArrayList<DesireListRsp> listDesires (
@@ -59,7 +63,9 @@ public class DesireGetControllers {
                         Integer.parseInt(Row[10]),
                         Boolean.parseBoolean(Row[8]),
                         Row[6],
-                        Timestamp.valueOf(Row[7])
+                        Timestamp.valueOf(Row[7]),
+                        // For tags
+                        new ArrayList<String>()
                     );
                     dsr.tags.add(Row[9]);
                     desires.add(dsr);
@@ -80,6 +86,40 @@ public class DesireGetControllers {
 
     @GetMapping(path = "/{id}")
     public @ResponseBody SingleDesire getDesire (@PathVariable Integer id) {
-        return new SingleDesire();
+        try {
+            /* From DB */
+            String [][] dbResponse = desiresRepository.findADesireJoined(id);
+            /* Create the single desire, without tags or bids */
+            SingleDesire dsr = new SingleDesire(
+                Integer.parseInt(dbResponse[0][0]),
+                dbResponse[0][3], 
+                dbResponse[0][4], 
+                dbResponse[0][1]+" "+dbResponse[0][2], 
+                Double.parseDouble(dbResponse[0][5]),
+                Integer.parseInt(dbResponse[0][12]),
+                Integer.parseInt(dbResponse[0][11]),
+                Integer.parseInt(dbResponse[0][10]),
+                Boolean.parseBoolean(dbResponse[0][8]),
+                dbResponse[0][6],
+                Timestamp.valueOf(dbResponse[0][7]),
+                // For Tags
+                new ArrayList<String>(),
+                // For Bid Ids
+                new ArrayList<Integer>()
+            );
+            /* Add the tags on the desire */
+            for (int i = 0; i < dbResponse.length; i++) {
+                final String[] Row = dbResponse[i];
+                dsr.tags.add(Row[9]);
+            }
+            /* Add the bids to the desires */
+            List<Bids> bids = bidsRepository.findByDesireId(dsr.id);
+            bids.iterator().forEachRemaining((bid) -> dsr.bidList.add(bid.getId()));
+
+            return dsr;
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
     }
 }
