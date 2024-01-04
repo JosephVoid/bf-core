@@ -29,7 +29,7 @@ public class DesireGetControllers {
     BidsRepository bidsRepository;
 
     @GetMapping(path = "/all")
-    public @ResponseBody ArrayList<DesireListRsp> listDesires (
+    public @ResponseBody List<DesireListRsp> listDesires (
         @RequestParam (value = "per-page", defaultValue = "20") Integer perPage,
         @RequestParam (value = "page", defaultValue = "1") Integer page,
         @RequestParam (value = "filter-by", defaultValue = "") String filterBy,
@@ -40,6 +40,8 @@ public class DesireGetControllers {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sort by param invalid");
         if (!(sortDir.equals("ASC") || sortDir.equals("DESC")))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sort dir param invalid");
+        if (page < 1 || perPage < 1)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pagination invalid");
         try {
             /* From DB */
             String [][] dbResponse = desiresRepository.findAllDesiresJoined(filterBy, sortBy+":"+sortDir);
@@ -77,7 +79,7 @@ public class DesireGetControllers {
                 }
             }
 
-            return desires;
+            return desires.subList(perPage*(page - 1), Math.min(desires.size(), perPage*page));
 
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
