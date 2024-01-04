@@ -42,7 +42,13 @@ public interface DesiresRepository extends CrudRepository<Desires, Integer>{
         LEFT JOIN tags ON tags.id = desire_tags.tag_id
         WHERE tags.name LIKE %:filterBy%
         GROUP BY desires.id, tags.id
-        ORDER BY :sortBy :sortDir
+        ORDER BY 
+            CASE WHEN :sortBy = 'created:ASC'  THEN created END ASC, 
+            CASE WHEN :sortBy = 'created:DESC' THEN created END DESC,
+            CASE WHEN :sortBy = 'wants:ASC'  THEN wants END ASC, 
+            CASE WHEN :sortBy = 'wants:DESC' THEN wants END DESC,
+            CASE WHEN :sortBy = 'desired_price:ASC'  THEN desired_price END ASC, 
+            CASE WHEN :sortBy = 'desired_price:DESC' THEN desired_price END DESC
         """, nativeQuery = true)
-    String[][] findAllDesiresJoined(String filterBy, String sortBy, String sortDir);
+    String[][] findAllDesiresJoined(String filterBy, String sortBy);
 }

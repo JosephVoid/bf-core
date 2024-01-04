@@ -24,7 +24,7 @@ public class DesireGetControllers {
     @Autowired
     DesiresRepository desiresRepository;
 
-    @GetMapping(path = "/")
+    @GetMapping(path = "/all")
     public @ResponseBody ArrayList<DesireListRsp> listDesires (
         @RequestParam (value = "per-page", defaultValue = "20") Integer perPage,
         @RequestParam (value = "page", defaultValue = "1") Integer page,
@@ -38,7 +38,7 @@ public class DesireGetControllers {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sort dir param invalid");
         try {
             /* From DB */
-            String [][] dbResponse = desiresRepository.findAllDesiresJoined(filterBy, sortBy, sortDir);
+            String [][] dbResponse = desiresRepository.findAllDesiresJoined(filterBy, sortBy+":"+sortDir);
             /* Empty ArrayList for responding */
             ArrayList<DesireListRsp> desires = new ArrayList<DesireListRsp>();
             /* Empty ArrayList to store the created desires id, used to remove duplicate rows */
@@ -53,7 +53,7 @@ public class DesireGetControllers {
                         Row[3], 
                         Row[4], 
                         Row[1]+" "+Row[2], 
-                        Double.parseDouble(Row[0]),
+                        Double.parseDouble(Row[5]),
                         Integer.parseInt(Row[12]),
                         Integer.parseInt(Row[11]),
                         Integer.parseInt(Row[10]),
