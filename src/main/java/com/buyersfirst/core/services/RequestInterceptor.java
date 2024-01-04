@@ -8,6 +8,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.buyersfirst.core.models.UsersRepository;
 
+import jakarta.security.auth.message.AuthException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -20,22 +21,29 @@ public class RequestInterceptor implements HandlerInterceptor{
     
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object object) throws Exception{
-        String token = request.getHeader("Authorization");
+        try {
+            String token = request.getHeader("Authorization");
 
-        if (token == null) {
-            response.getWriter().write("Authorization needed");
+            if (token == null) {
+                response.getWriter().write("Authorization needed");
+                response.setStatus(401);
+                return false;
+            }
+
+            JwtClaims claims = jwtBuilder.generateParseToken(token);
+            Integer userId = Integer.parseInt(claims.getClaimValue("userId").toString());
+            if (usersRepository.findById(userId).isPresent()) {
+                request.setAttribute("userId", userId);
+                return true;
+            }
+
+            return false;
+        } catch (AuthException e) {
+            response.getWriter().write("Authorization Issue\n--------------\n");
+            response.getWriter().write(e.getLocalizedMessage());
             response.setStatus(401);
             return false;
         }
-
-        JwtClaims claims = jwtBuilder.generateParseToken(token);
-        Integer userId = Integer.parseInt(claims.getClaimValue("userId").toString());
-        if (usersRepository.findById(userId).isPresent()) {
-            request.setAttribute("userId", userId);
-            return true;
-        }
-
-        return false;
     }
 
     @Override
