@@ -43,6 +43,13 @@ public class AcceptedBids {
 
     @Column(name = "accepted_on")
     private Timestamp AcceptedOn;
+    public AcceptedBids() {
+    }
+    public AcceptedBids(Integer userId, Integer bidId, Timestamp acceptedOn) {
+        UserId = userId;
+        BidId = bidId;
+        AcceptedOn = acceptedOn;
+    }
     public Timestamp getAcceptedOn() {
         return AcceptedOn;
     }

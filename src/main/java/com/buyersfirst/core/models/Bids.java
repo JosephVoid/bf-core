@@ -35,7 +35,7 @@ public class Bids {
     private Double BidPrice;
 
     @Column(name = "picture", nullable = true)
-    private Double Picture;
+    private String Picture;
 
     @Column(name = "bid_date_time")
     private Timestamp BidDateTime;
@@ -43,6 +43,19 @@ public class Bids {
     @Column(name = "is_closed")
     private Integer IsClosed;
     
+    public Bids() {
+    }
+
+    public Bids(Integer desireId, Integer ownerId, String description, Double bidPrice, String picture,
+            Timestamp bidDateTime, Integer isClosed) {
+        DesireId = desireId;
+        OwnerId = ownerId;
+        Description = description;
+        BidPrice = bidPrice;
+        Picture = picture;
+        BidDateTime = bidDateTime;
+        IsClosed = isClosed;
+    }
     public Integer getDesireId() {
         return DesireId;
     }
@@ -67,10 +80,10 @@ public class Bids {
     public void setBidPrice(Double bidPrice) {
         BidPrice = bidPrice;
     }
-    public Double getPicture() {
+    public String getPicture() {
         return Picture;
     }
-    public void setPicture(Double picture) {
+    public void setPicture(String picture) {
         Picture = picture;
     }
     public Timestamp getBidDateTime() {
