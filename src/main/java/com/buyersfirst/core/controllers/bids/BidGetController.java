@@ -24,13 +24,13 @@ public class BidGetController {
     @Autowired
     BidsRepository bidsRepository;
 
-    @GetMapping("/all")
-    public @ResponseBody List<BidResponse> getAllBids () {
+    @GetMapping("/all/{desireId}")
+    public @ResponseBody List<BidResponse> getAllBids (@PathVariable Integer desireId) {
         try {
             /* Array list for response */
             ArrayList<BidResponse> bids = new ArrayList<>();
             /* The response from the DB */
-            String[][] dbResponse = bidsRepository.findAllBidsJoined();
+            String[][] dbResponse = bidsRepository.findAllBidsJoined(desireId);
             /* Loop through create the desire and append to response list*/
             for (int i = 0; i < dbResponse.length; i++) {
                 final String[] Row = dbResponse[i];
