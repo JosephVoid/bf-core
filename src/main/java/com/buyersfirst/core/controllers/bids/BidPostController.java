@@ -48,6 +48,10 @@ public class BidPostController {
             Optional<Desires> desire = desiresRepository.findById(desireId);
             if (!desire.isPresent())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire does not exist");
+            /* Check if the desire is owned by the user */
+            List<Integer> desireList = desiresRepository.listDesiresByOwner(userId);
+            if (desireList.contains(desireId))
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't bid for own desire");
 
             Bids bid = new Bids(desireId, userId, body.description, body.price, body.picture, new Timestamp(System.currentTimeMillis()), 0);
 
