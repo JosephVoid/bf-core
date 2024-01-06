@@ -12,8 +12,9 @@ public interface BidsRepository extends CrudRepository<Bids, Integer>{
     @Query(value = """
         SELECT bids.*, users.first_name, users.last_name FROM bids
         JOIN users ON users.id = bids.owner_id
+        WHERE bids.desire_id = :id
     """, nativeQuery = true)
-    String[][] findAllBidsJoined();
+    String[][] findAllBidsJoined(Integer id);
 
     @Query(value = """
         SELECT bids.*, users.first_name, users.last_name FROM bids
