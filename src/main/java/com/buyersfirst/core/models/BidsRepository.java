@@ -21,4 +21,7 @@ public interface BidsRepository extends CrudRepository<Bids, Integer>{
         JOIN users ON users.id = bids.owner_id WHERE bids.id = :id
     """, nativeQuery = true)
     String[][] findABidJoined(Integer id);
+
+    @Query("SELECT bds.id FROM Bids bds WHERE bds.OwnerId=?1")
+    List<Integer> listBidsByOwner(Integer id);
 }

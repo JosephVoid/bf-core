@@ -1,5 +1,7 @@
 package com.buyersfirst.core.models;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -84,4 +86,7 @@ public interface DesiresRepository extends CrudRepository<Desires, Integer>{
         GROUP BY desires.id, tags.id
         """, nativeQuery = true)
     String[][] findADesireJoined(Integer id);
+
+    @Query("SELECT dsr.id FROM Desires dsr WHERE dsr.OwnerId=?1")
+    List<Integer> listDesiresByOwner(Integer id);
 }
