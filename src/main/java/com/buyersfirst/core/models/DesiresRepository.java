@@ -32,18 +32,30 @@ public interface DesiresRepository extends CrudRepository<Desires, Integer>{
             desires.created,
             desires.is_closed,
             tags.name AS tag_name,
-            COUNT(bids.id) AS bids,
-            COUNT(user_wants.id) AS wants, 
-            COUNT(views.id) AS views 
+            COALESCE(bids_count, 0) AS bids,
+            COALESCE(wants_count, 0) AS wants, 
+            COALESCE(views_count, 0) AS views 
         FROM desires
         LEFT JOIN users ON users.id = desires.owner_id
-        LEFT JOIN bids ON bids.desire_id = desires.id
-        LEFT JOIN user_wants ON user_wants.desire_id = desires.id
-        LEFT JOIN views ON views.desire_id = desires.id
+        LEFT JOIN (
+            SELECT desire_id, COUNT(id) AS bids_count
+            FROM bids
+            GROUP BY desire_id
+        ) AS bid_counts ON bid_counts.desire_id = desires.id
+        LEFT JOIN (
+            SELECT desire_id, COUNT(id) AS wants_count
+            FROM user_wants
+            GROUP BY desire_id
+        ) AS want_counts ON want_counts.desire_id = desires.id
+        LEFT JOIN (
+            SELECT desire_id, COUNT(id) AS views_count
+            FROM views
+            GROUP BY desire_id
+        ) AS view_counts ON view_counts.desire_id = desires.id
         RIGHT JOIN desire_tags ON desire_tags.desire_id = desires.id
         LEFT JOIN tags ON tags.id = desire_tags.tag_id
-        WHERE tags.name LIKE %:filterBy%
-        GROUP BY desires.id, tags.id
+        WHERE tags.name LIKE %:filterBy% AND desires.id IS NOT NULL
+        GROUP BY desires.id, users.first_name, users.last_name, desires.title, desires.description, desires.desired_price, desires.picture, desires.created, desires.is_closed, tags.name, bids_count, wants_count, views_count
         ORDER BY 
             CASE WHEN :sortBy = 'created:ASC'  THEN created END ASC, 
             CASE WHEN :sortBy = 'created:DESC' THEN created END DESC,
@@ -72,18 +84,30 @@ public interface DesiresRepository extends CrudRepository<Desires, Integer>{
             desires.created,
             desires.is_closed,
             tags.name AS tag_name,
-            COUNT(bids.id) AS bids,
-            COUNT(user_wants.id) AS wants, 
-            COUNT(views.id) AS views 
+            COALESCE(bids_count, 0) AS bids,
+            COALESCE(wants_count, 0) AS wants, 
+            COALESCE(views_count, 0) AS views 
         FROM desires
         LEFT JOIN users ON users.id = desires.owner_id
-        LEFT JOIN bids ON bids.desire_id = desires.id
-        LEFT JOIN user_wants ON user_wants.desire_id = desires.id
-        LEFT JOIN views ON views.desire_id = desires.id
+        LEFT JOIN (
+            SELECT desire_id, COUNT(id) AS bids_count
+            FROM bids
+            GROUP BY desire_id
+        ) AS bid_counts ON bid_counts.desire_id = desires.id
+        LEFT JOIN (
+            SELECT desire_id, COUNT(id) AS wants_count
+            FROM user_wants
+            GROUP BY desire_id
+        ) AS want_counts ON want_counts.desire_id = desires.id
+        LEFT JOIN (
+            SELECT desire_id, COUNT(id) AS views_count
+            FROM views
+            GROUP BY desire_id
+        ) AS view_counts ON view_counts.desire_id = desires.id
         RIGHT JOIN desire_tags ON desire_tags.desire_id = desires.id
         LEFT JOIN tags ON tags.id = desire_tags.tag_id
-        WHERE desires.id = :id
-        GROUP BY desires.id, tags.id
+        WHERE desires.id = :id AND desires.id IS NOT NULL
+        GROUP BY desires.id, users.first_name, users.last_name, desires.title, desires.description, desires.desired_price, desires.picture, desires.created, desires.is_closed, tags.name, bids_count, wants_count, views_count
         """, nativeQuery = true)
     String[][] findADesireJoined(Integer id);
 
