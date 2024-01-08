@@ -38,4 +38,9 @@ public interface BidsRepository extends CrudRepository<Bids, Integer>{
             WHERE bids.id = :id
     """, nativeQuery = true)
     void updateBid(Integer id, String desc, Double price, String pic);
+
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query("UPDATE Bids SET IsClosed = ?2 where id = ?1")
+    void UpdateIsClosedStatus(Integer id, Integer status);
 }
