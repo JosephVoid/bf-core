@@ -33,6 +33,12 @@ public class Views {
 
     @Column(name = "viewed_on")
     private Timestamp ViewedOn;
+    public Views(Integer userId, Integer desireId, Integer bidId, Timestamp viewedOn) {
+        UserId = userId;
+        DesireId = desireId;
+        BidId = bidId;
+        ViewedOn = viewedOn;
+    }
     public Timestamp getViewedOn() {
         return ViewedOn;
     }
