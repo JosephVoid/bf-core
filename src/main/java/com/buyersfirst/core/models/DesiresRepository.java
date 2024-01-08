@@ -89,4 +89,16 @@ public interface DesiresRepository extends CrudRepository<Desires, Integer>{
 
     @Query("SELECT dsr.id FROM Desires dsr WHERE dsr.OwnerId=?1")
     List<Integer> listDesiresByOwner(Integer id);
+
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query(value = """
+        UPDATE desires SET 
+            title = COALESCE(:title, title),
+            description = COALESCE(:desc, description),
+            desired_price = COALESCE(:price, desired_price),
+            picture = COALESCE(:pic, picture)
+            WHERE desires.id = :id
+    """, nativeQuery = true)
+    void updateDesire(Integer id, String title, String desc, Double price, String pic);
 }
