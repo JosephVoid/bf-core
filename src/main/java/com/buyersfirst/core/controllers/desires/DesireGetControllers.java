@@ -91,6 +91,8 @@ public class DesireGetControllers {
         try {
             /* From DB */
             String [][] dbResponse = desiresRepository.findADesireJoined(id);
+            if (dbResponse.length < 1)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire doesnt exist");
             /* Create the single desire, without tags or bids */
             SingleDesire dsr = new SingleDesire(
                 Integer.parseInt(dbResponse[0][0]),
