@@ -96,4 +96,31 @@ public class BidPostController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         }
     }
+
+    @PostMapping(path = "/close/{bidId}")
+    @ResponseBody Bids closeBid (@RequestHeader("Authorization") String auth, @PathVariable Integer bidId) {
+        try {
+            Integer userId = tokenParser.getUserId(auth);
+            /* Check if the bid is there */
+            Optional<Bids> bid = bidsRepository.findById(bidId);
+            if (!bid.isPresent())
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bid does not exist");
+            /* Check if the bid is not accepted by the user */
+            if (bid.get().getOwnerId() != userId)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't close others bid");
+            if (bid.get().getIsClosed() == 0)
+                bidsRepository.UpdateIsClosedStatus(bidId, 1);
+            else 
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bid already closed");
+
+            return bidsRepository.findById(bidId).get();
+
+        } catch (AuthException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Auth Header Issue");
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
 }
