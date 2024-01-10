@@ -13,11 +13,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import com.buyersfirst.core.interfaces.DesireCache;
 import com.buyersfirst.core.interfaces.DesireListRsp;
 import com.buyersfirst.core.interfaces.SingleDesire;
 import com.buyersfirst.core.models.Bids;
 import com.buyersfirst.core.models.BidsRepository;
 import com.buyersfirst.core.models.DesiresRepository;
+import com.buyersfirst.core.services.RedisCacheService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping(path = "/desires", method = RequestMethod.GET)
@@ -27,6 +30,8 @@ public class DesireGetControllers {
     DesiresRepository desiresRepository;
     @Autowired
     BidsRepository bidsRepository;
+    @Autowired
+    RedisCacheService redisCacheService;
 
     @GetMapping(path = "/all")
     public @ResponseBody List<DesireListRsp> listDesires (
@@ -43,6 +48,21 @@ public class DesireGetControllers {
         if (page < 1 || perPage < 1)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pagination invalid");
         try {
+
+            ObjectMapper mapper = new ObjectMapper();
+
+            /* ################################################################### */
+            /* ---------------------RESPONDING WITH CACHE------------------------- */
+
+            if (redisCacheService.jedis.exists("all-desires")) {
+                String cachedString = redisCacheService.jedis.get("all-desires");
+                List<DesireListRsp> cachedDesires = mapper.readValue(cachedString, DesireCache.class).allDesires;
+
+                return cachedDesires.subList(perPage*(page - 1), Math.min(cachedDesires.size(), perPage*page));
+            }
+
+            /* ################################################################### */
+
             /* From DB */
             String [][] dbResponse = desiresRepository.findAllDesiresJoined(filterBy, sortBy+":"+sortDir);
             /* Empty ArrayList for responding */
@@ -78,6 +98,14 @@ public class DesireGetControllers {
                     desires.get(desires.size() - 1).tags.add(Row[9]);
                 }
             }
+
+            /* ################################################################### */
+            /* ---------------------CACHING THE RESPONSE-------------------------- */
+
+            DesireCache desireCache = new DesireCache(desires);
+            redisCacheService.jedis.setex("all-desires", 3600,mapper.writeValueAsString(desireCache));
+
+            /* ################################################################### */
 
             return desires.subList(perPage*(page - 1), Math.min(desires.size(), perPage*page));
 
