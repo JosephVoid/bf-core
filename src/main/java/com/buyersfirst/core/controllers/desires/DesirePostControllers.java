@@ -23,6 +23,7 @@ import com.buyersfirst.core.models.DesireTagsRepository;
 import com.buyersfirst.core.models.Desires;
 import com.buyersfirst.core.models.DesiresRepository;
 import com.buyersfirst.core.models.UserWantsRepository;
+import com.buyersfirst.core.services.AlertUsers;
 import com.buyersfirst.core.services.TokenParser;
 
 import jakarta.security.auth.message.AuthException;
@@ -38,17 +39,20 @@ public class DesirePostControllers {
     DesireTagsRepository desireTagsRepository;
     @Autowired
     UserWantsRepository userWantsRepository;
+    @Autowired
+    AlertUsers alertUsers;
 
     @PostMapping(path = "/create")
-    public @ResponseBody Desires createDesires (@RequestHeader("Authorization") String auth, @RequestBody CreateDesiresRqB request) {
+    public @ResponseBody Desires createDesires(@RequestHeader("Authorization") String auth,
+            @RequestBody CreateDesiresRqB request) {
         if (request.title == null || request.description == null || request.price == null || request.tags_id == null)
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Input");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Input");
         try {
             Integer userId = tokenParser.getUserId(auth);
             /* Validate input */
             if (request.title.length() > 100 || request.description.length() > 500)
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Input size limit exceed");
-            
+
             /* Save desire */
             Desires desire = new Desires();
             desire.setCreated(new Timestamp(System.currentTimeMillis()));
@@ -59,15 +63,15 @@ public class DesirePostControllers {
             desire.setOwnerId(userId);
             if (request.picture != null)
                 desire.setPicture(request.picture);
-            Desires savedDesire =  desiresRepository.save(desire);
-            
+            Desires savedDesire = desiresRepository.save(desire);
+
             /* Save Desire Tag relation */
             ArrayList<DesireTags> desireTags = new ArrayList<DesireTags>();
             for (int i = 0; i < request.tags_id.length; i++) {
                 desireTags.add(new DesireTags(request.tags_id[i], savedDesire.getId()));
             }
             desireTagsRepository.saveAll(desireTags);
-            
+
             alertUsers.alertForTags(savedDesire.getTitle(), request.tags_id);
             return savedDesire;
 
@@ -77,7 +81,8 @@ public class DesirePostControllers {
     }
 
     @PostMapping(path = "/{id}/recreate")
-    public @ResponseBody Desires reCreateDesires (@RequestHeader("Authorization") String auth, @PathVariable Integer id) {
+    public @ResponseBody Desires reCreateDesires(@RequestHeader("Authorization") String auth,
+            @PathVariable Integer id) {
         try {
             Integer userId = tokenParser.getUserId(auth);
             /* Get the desire to recreate from */
@@ -90,17 +95,15 @@ public class DesirePostControllers {
             Desires desire = new Desires();
             desire.setCreated(new Timestamp(System.currentTimeMillis()));
             desire.setTitle(
-                oldDesire.get().getTitle().contains("[Repost]") ? 
-                oldDesire.get().getTitle() : 
-                "[Repost] "+oldDesire.get().getTitle()
-            );
+                    oldDesire.get().getTitle().contains("[Repost]") ? oldDesire.get().getTitle()
+                            : "[Repost] " + oldDesire.get().getTitle());
             desire.setDescription(oldDesire.get().getDescription());
             desire.setDesiredPrice(oldDesire.get().getDesiredPrice());
             desire.setIsClosed(0);
             desire.setOwnerId(userId);
             desire.setPicture(oldDesire.get().getPicture());
 
-            Desires savedDesire =  desiresRepository.save(desire);
+            Desires savedDesire = desiresRepository.save(desire);
 
             /* Save Desire Tag relation */
             ArrayList<DesireTags> desireTags = new ArrayList<DesireTags>();
@@ -123,14 +126,14 @@ public class DesirePostControllers {
     }
 
     @PostMapping(path = "/{id}/close")
-    public @ResponseBody Desires closeDesires (@RequestHeader("Authorization") String auth, @PathVariable Integer id) {
+    public @ResponseBody Desires closeDesires(@RequestHeader("Authorization") String auth, @PathVariable Integer id) {
         try {
             tokenParser.getUserId(auth);
             /* Check if the desire is there */
             Optional<Desires> desire = desiresRepository.findById(id);
             if (!desire.isPresent())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire does not exist");
-            /* Close the desire if not closed already*/
+            /* Close the desire if not closed already */
             if (desire.get().getIsClosed() == 0)
                 desiresRepository.UpdateIsClosedStatus(id, 1);
             else
@@ -148,7 +151,7 @@ public class DesirePostControllers {
     }
 
     @PostMapping(path = "/want/{id}")
-    public @ResponseBody Desires wantDesires (@RequestHeader("Authorization") String auth, @PathVariable Integer id) {
+    public @ResponseBody Desires wantDesires(@RequestHeader("Authorization") String auth, @PathVariable Integer id) {
         try {
             Integer userId = tokenParser.getUserId(auth);
             /* Check if the desire is there */
@@ -174,7 +177,7 @@ public class DesirePostControllers {
     }
 
     @PostMapping(path = "/not-want/{id}")
-    public @ResponseBody Desires notWantDesires (@RequestHeader("Authorization") String auth, @PathVariable Integer id) {
+    public @ResponseBody Desires notWantDesires(@RequestHeader("Authorization") String auth, @PathVariable Integer id) {
         try {
             Integer userId = tokenParser.getUserId(auth);
             /* Check if the desire is there */
