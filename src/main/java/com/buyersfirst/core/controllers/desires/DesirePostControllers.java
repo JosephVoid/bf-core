@@ -161,6 +161,9 @@ public class DesirePostControllers {
             /* Check if there is a Want before */
             if (userWantsRepository.findByDesireUserId(id, userId).size() > 0)
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire already wanted by user");
+            /* Check if the user is not the owner of the desire */
+            if (desire.get().getOwnerId() == userId)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't want your own desire");
             /* Want the desire */
             userWantsRepository.addUserWants(id, userId, new Timestamp(System.currentTimeMillis()));
 
