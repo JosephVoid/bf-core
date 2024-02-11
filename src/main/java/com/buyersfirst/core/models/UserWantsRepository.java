@@ -9,9 +9,12 @@ import org.springframework.data.repository.CrudRepository;
 
 import jakarta.transaction.Transactional;
 
-public interface UserWantsRepository extends CrudRepository<UserWants, Integer>{
+public interface UserWantsRepository extends CrudRepository<UserWants, Integer> {
     @Query("SELECT uw FROM UserWants uw where uw.DesireId = ?1 AND uw.UserId = ?2")
     List<UserWants> findByDesireUserId(Integer desireId, Integer userId);
+
+    @Query("SELECT uw FROM UserWants uw where uw.DesireId = ?1")
+    List<UserWants> findByDesire(Integer desireId);
 
     @Modifying(clearAutomatically = true)
     @Transactional

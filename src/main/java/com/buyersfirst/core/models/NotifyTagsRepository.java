@@ -1,7 +1,12 @@
 package com.buyersfirst.core.models;
 
+import java.util.List;
+
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+
+import jakarta.transaction.Transactional;
 
 public interface NotifyTagsRepository extends CrudRepository<NotifyTags, Integer> {
     @Query(value = """
@@ -12,4 +17,12 @@ public interface NotifyTagsRepository extends CrudRepository<NotifyTags, Integer
             GROUP BY phone;
                 """, nativeQuery = true)
     String[][] findContactByTag(Integer[] id);
+
+    @Query("SELECT nt FROM NotifyTags nt where nt.tagId = :tagId AND nt.userId = :userId")
+    List<NotifyTags> findByTagAndUser(Integer userId, Integer tagId);
+
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query(value = "DELETE FROM notify_tags_user WHERE tag_id = :tagId AND user_id = :userId", nativeQuery = true)
+    void deleteNotifyTags(Integer userId, Integer tagId);
 }

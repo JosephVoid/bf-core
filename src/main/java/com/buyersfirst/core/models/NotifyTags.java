@@ -8,7 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(schema = "notify_tags_user")
+@Table(name = "notify_tags_user")
 public class NotifyTags {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +25,16 @@ public class NotifyTags {
 
     @Column(name = "phone")
     private String phone;
+
+    public NotifyTags() {
+    }
+
+    public NotifyTags(Integer tagId, Integer userId, String email, String phone) {
+        this.tagId = tagId;
+        this.userId = userId;
+        this.email = email;
+        this.phone = phone;
+    }
 
     public String getPhone() {
         return phone;
