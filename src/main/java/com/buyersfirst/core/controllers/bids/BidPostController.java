@@ -21,6 +21,7 @@ import com.buyersfirst.core.models.Bids;
 import com.buyersfirst.core.models.BidsRepository;
 import com.buyersfirst.core.models.Desires;
 import com.buyersfirst.core.models.DesiresRepository;
+import com.buyersfirst.core.services.AlertUsers;
 import com.buyersfirst.core.services.TokenParser;
 
 import jakarta.security.auth.message.AuthException;
@@ -28,7 +29,7 @@ import jakarta.security.auth.message.AuthException;
 @RestController
 @RequestMapping(path = "/bids")
 public class BidPostController {
-    
+
     @Autowired
     TokenParser tokenParser;
     @Autowired
@@ -37,9 +38,13 @@ public class BidPostController {
     BidsRepository bidsRepository;
     @Autowired
     AcceptedBidsRepository acceptedBidsRepository;
+    @Autowired
+    AlertUsers alertUsers;
 
     @PostMapping(path = "/{desireId}/create")
-    @ResponseBody Bids createBids (@RequestHeader("Authorization") String auth,  @PathVariable Integer desireId, @RequestBody CreateBidRqB body) {
+    @ResponseBody
+    Bids createBids(@RequestHeader("Authorization") String auth, @PathVariable Integer desireId,
+            @RequestBody CreateBidRqB body) {
         if (body.description == null || body.price == null || desireId == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Input");
         try {
@@ -56,10 +61,13 @@ public class BidPostController {
             if (desire.get().getIsClosed() == 1)
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire is closed");
 
-            Bids bid = new Bids(desireId, userId, body.description, body.price, body.picture, new Timestamp(System.currentTimeMillis()), 0);
+            Bids bid = new Bids(desireId, userId, body.description, body.price, body.picture,
+                    new Timestamp(System.currentTimeMillis()), 0);
 
             bidsRepository.save(bid);
 
+            alertUsers.alertDesireOwnerForbid(desire.get().getOwnerId(), desire.get().getTitle(), bid.getBidPrice());
+            alertUsers.alertUsersWhoWantedTheDesire(desireId, desire.get().getTitle(), bid.getBidPrice());
             return bid;
 
         } catch (AuthException e) {
@@ -72,7 +80,8 @@ public class BidPostController {
     }
 
     @PostMapping(path = "/accept/{bidId}")
-    @ResponseBody Bids acceptBid (@RequestHeader("Authorization") String auth, @PathVariable Integer bidId) {
+    @ResponseBody
+    Bids acceptBid(@RequestHeader("Authorization") String auth, @PathVariable Integer bidId) {
         try {
             Integer userId = tokenParser.getUserId(auth);
             /* Check if the bid is there */
@@ -108,7 +117,8 @@ public class BidPostController {
     }
 
     @PostMapping(path = "/close/{bidId}")
-    @ResponseBody Bids closeBid (@RequestHeader("Authorization") String auth, @PathVariable Integer bidId) {
+    @ResponseBody
+    Bids closeBid(@RequestHeader("Authorization") String auth, @PathVariable Integer bidId) {
         try {
             Integer userId = tokenParser.getUserId(auth);
             /* Check if the bid is there */
@@ -120,7 +130,7 @@ public class BidPostController {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't close others bid");
             if (bid.get().getIsClosed() == 0)
                 bidsRepository.UpdateIsClosedStatus(bidId, 1);
-            else 
+            else
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bid already closed");
 
             return bidsRepository.findById(bidId).get();
