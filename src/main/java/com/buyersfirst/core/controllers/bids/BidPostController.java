@@ -89,6 +89,13 @@ public class BidPostController {
 
             acceptedBidsRepository.save(new AcceptedBids(userId, bidId, new Timestamp(System.currentTimeMillis())));
 
+            /* If the bid is accepted by the desire owner, close the desire */
+            Desires desire = desiresRepository.findById(bid.get().getDesireId()).get();
+            if (desire.getOwnerId() == userId)
+                desiresRepository.UpdateIsClosedStatus(desire.getId(), 1);
+
+            alertUsers.alertOnBidAccept(bid.get().getOwnerId(), bid.get().getDesireId());
+
             return bid.get();
 
         } catch (AuthException e) {
