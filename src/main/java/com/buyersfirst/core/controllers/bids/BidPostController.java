@@ -52,6 +52,9 @@ public class BidPostController {
             List<Integer> desireList = desiresRepository.listDesiresByOwner(userId);
             if (desireList.contains(desireId))
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't bid for own desire");
+            /* Check if the desire is not closed */
+            if (desire.get().getIsClosed() == 1)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire is closed");
 
             Bids bid = new Bids(desireId, userId, body.description, body.price, body.picture, new Timestamp(System.currentTimeMillis()), 0);
 
