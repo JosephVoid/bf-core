@@ -20,29 +20,28 @@ import com.buyersfirst.core.models.BidsRepository;
 @RestController
 @RequestMapping(path = "/bids", method = RequestMethod.GET)
 public class BidGetController {
-    
+
     @Autowired
     BidsRepository bidsRepository;
 
     @GetMapping("/all/{desireId}")
-    public @ResponseBody List<BidResponse> getAllBids (@PathVariable Integer desireId) {
+    public @ResponseBody List<BidResponse> getAllBids(@PathVariable String desireId) {
         try {
             /* Array list for response */
             ArrayList<BidResponse> bids = new ArrayList<>();
             /* The response from the DB */
             String[][] dbResponse = bidsRepository.findAllBidsJoined(desireId);
-            /* Loop through create the desire and append to response list*/
+            /* Loop through create the desire and append to response list */
             for (int i = 0; i < dbResponse.length; i++) {
                 final String[] Row = dbResponse[i];
                 bids.add(new BidResponse(
-                    Integer.parseInt(Row[0]),
-                    Double.parseDouble(Row[4]),
-                    Row[3],
-                    Row[5],
-                    Row[8]+" "+Row[9],
-                    Timestamp.valueOf(Row[6]),
-                    Boolean.parseBoolean(Row[7])
-                ));
+                        Row[0],
+                        Double.parseDouble(Row[4]),
+                        Row[3],
+                        Row[5],
+                        Row[8] + " " + Row[9],
+                        Timestamp.valueOf(Row[6]),
+                        Boolean.parseBoolean(Row[7])));
             }
 
             return bids;
@@ -54,20 +53,19 @@ public class BidGetController {
     }
 
     @GetMapping("/{id}")
-    public @ResponseBody BidResponse getABid (@PathVariable Integer id) {
+    public @ResponseBody BidResponse getABid(@PathVariable String id) {
         try {
             /* The response from the DB */
             String[][] dbResponse = bidsRepository.findABidJoined(id);
             /* Create the bid response */
-            BidResponse bid =  new BidResponse(
-                Integer.parseInt(dbResponse[0][0]),
-                Double.parseDouble(dbResponse[0][4]),
-                dbResponse[0][3],
-                dbResponse[0][5],
-                dbResponse[0][8]+" "+dbResponse[0][9],
-                Timestamp.valueOf(dbResponse[0][6]),
-                Boolean.parseBoolean(dbResponse[0][7])
-            );
+            BidResponse bid = new BidResponse(
+                    dbResponse[0][0],
+                    Double.parseDouble(dbResponse[0][4]),
+                    dbResponse[0][3],
+                    dbResponse[0][5],
+                    dbResponse[0][8] + " " + dbResponse[0][9],
+                    Timestamp.valueOf(dbResponse[0][6]),
+                    Boolean.parseBoolean(dbResponse[0][7]));
 
             return bid;
 

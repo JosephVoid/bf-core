@@ -165,7 +165,7 @@ public interface DesiresRepository extends CrudRepository<Desires, UUID> {
     String[][] findADesireJoined(String id);
 
     @Query("SELECT dsr.id FROM Desires dsr WHERE dsr.OwnerId=?1")
-    List<Integer> listDesiresByOwner(String id);
+    List<String> listDesiresByOwner(String id);
 
     @Modifying(clearAutomatically = true)
     @Transactional

@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 
 public class DesireListRsp {
-    public Integer id;
+    public String id;
     public String title;
     public String description;
     public String postedBy;
@@ -16,10 +16,11 @@ public class DesireListRsp {
     public boolean isClosed;
     public String picture;
     public Timestamp postedOn;
-    
-    public DesireListRsp(){}
 
-    public DesireListRsp(Integer id, String title, String description, String postedBy, Double price, Integer views,
+    public DesireListRsp() {
+    }
+
+    public DesireListRsp(String id, String title, String description, String postedBy, Double price, Integer views,
             Integer wants, Integer bids, boolean isClosed, String picture, Timestamp postedOn, ArrayList<String> tags) {
         this.id = id;
         this.title = title;

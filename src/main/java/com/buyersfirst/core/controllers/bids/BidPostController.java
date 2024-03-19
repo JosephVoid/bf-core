@@ -3,6 +3,7 @@ package com.buyersfirst.core.controllers.bids;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,18 +44,18 @@ public class BidPostController {
 
     @PostMapping(path = "/{desireId}/create")
     @ResponseBody
-    Bids createBids(@RequestHeader("Authorization") String auth, @PathVariable Integer desireId,
+    Bids createBids(@RequestHeader("Authorization") String auth, @PathVariable String desireId,
             @RequestBody CreateBidRqB body) {
         if (body.description == null || body.price == null || desireId == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Input");
         try {
-            Integer userId = tokenParser.getUserId(auth);
+            String userId = tokenParser.getUserId(auth);
             /* Check if the desire is there */
-            Optional<Desires> desire = desiresRepository.findById(desireId);
+            Optional<Desires> desire = desiresRepository.findById(UUID.fromString(desireId));
             if (!desire.isPresent())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire does not exist");
             /* Check if the desire is owned by the user */
-            List<Integer> desireList = desiresRepository.listDesiresByOwner(userId);
+            List<String> desireList = desiresRepository.listDesiresByOwner(userId);
             if (desireList.contains(desireId))
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't bid for own desire");
             /* Check if the desire is not closed */
@@ -81,11 +82,11 @@ public class BidPostController {
 
     @PostMapping(path = "/accept/{bidId}")
     @ResponseBody
-    Bids acceptBid(@RequestHeader("Authorization") String auth, @PathVariable Integer bidId) {
+    Bids acceptBid(@RequestHeader("Authorization") String auth, @PathVariable String bidId) {
         try {
-            Integer userId = tokenParser.getUserId(auth);
+            String userId = tokenParser.getUserId(auth);
             /* Check if the bid is there */
-            Optional<Bids> bid = bidsRepository.findById(bidId);
+            Optional<Bids> bid = bidsRepository.findById(UUID.fromString(bidId));
             if (!bid.isPresent())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bid does not exist");
             /* Check if the bid is not accepted by the user */
@@ -99,9 +100,9 @@ public class BidPostController {
             acceptedBidsRepository.save(new AcceptedBids(userId, bidId, new Timestamp(System.currentTimeMillis())));
 
             /* If the bid is accepted by the desire owner, close the desire */
-            Desires desire = desiresRepository.findById(bid.get().getDesireId()).get();
+            Desires desire = desiresRepository.findById(UUID.fromString(bid.get().getDesireId())).get();
             if (desire.getOwnerId() == userId)
-                desiresRepository.UpdateIsClosedStatus(desire.getId(), 1);
+                desiresRepository.UpdateIsClosedStatus(desire.getId().toString(), 1);
 
             alertUsers.alertOnBidAccept(bid.get().getOwnerId(), bid.get().getDesireId());
 
@@ -118,11 +119,11 @@ public class BidPostController {
 
     @PostMapping(path = "/close/{bidId}")
     @ResponseBody
-    Bids closeBid(@RequestHeader("Authorization") String auth, @PathVariable Integer bidId) {
+    Bids closeBid(@RequestHeader("Authorization") String auth, @PathVariable String bidId) {
         try {
-            Integer userId = tokenParser.getUserId(auth);
+            String userId = tokenParser.getUserId(auth);
             /* Check if the bid is there */
-            Optional<Bids> bid = bidsRepository.findById(bidId);
+            Optional<Bids> bid = bidsRepository.findById(UUID.fromString(bidId));
             if (!bid.isPresent())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bid does not exist");
             /* Check if the bid is not accepted by the user */
@@ -133,7 +134,7 @@ public class BidPostController {
             else
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bid already closed");
 
-            return bidsRepository.findById(bidId).get();
+            return bidsRepository.findById(UUID.fromString(bidId)).get();
 
         } catch (AuthException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Auth Header Issue");
