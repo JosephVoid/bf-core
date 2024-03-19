@@ -8,8 +8,6 @@ import org.hibernate.annotations.JdbcTypeCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -18,39 +16,28 @@ import jakarta.persistence.Table;
 @Table(schema = "user_wants")
 public class UserWants {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "id", updatable = false)
+    @JdbcTypeCode(Types.VARCHAR)
+    private UUID id;
 
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    @Column(name = "uuid", updatable = false)
-    @JdbcTypeCode(Types.VARCHAR)
-    private UUID Uuid;
-
-    public UUID getUuid() {
-        return Uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        Uuid = uuid;
+    public void setId(UUID uuid) {
+        id = uuid;
     }
 
     @PrePersist
     public void autofill() {
-        this.setUuid(UUID.randomUUID());
+        this.setId(UUID.randomUUID());
     }
 
     @Column(name = "user_id")
-    private Integer UserId;
+    private String UserId;
 
     @Column(name = "desire_id")
-    private Integer DesireId;
+    private String DesireId;
 
     @Column(name = "wanted_on")
     private Timestamp WantedOn;
@@ -63,19 +50,19 @@ public class UserWants {
         WantedOn = wantedOn;
     }
 
-    public Integer getUserId() {
+    public String getUserId() {
         return UserId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(String userId) {
         UserId = userId;
     }
 
-    public Integer getDesireId() {
+    public String getDesireId() {
         return DesireId;
     }
 
-    public void setDesireId(Integer desireId) {
+    public void setDesireId(String desireId) {
         DesireId = desireId;
     }
 }

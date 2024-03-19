@@ -8,8 +8,6 @@ import org.hibernate.annotations.JdbcTypeCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -18,36 +16,25 @@ import jakarta.persistence.Table;
 @Table(schema = "desires")
 public class Desires {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "id", updatable = false)
+    @JdbcTypeCode(Types.VARCHAR)
+    private UUID id;
 
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    @Column(name = "uuid", updatable = false)
-    @JdbcTypeCode(Types.VARCHAR)
-    private UUID Uuid;
-
-    public UUID getUuid() {
-        return Uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        Uuid = uuid;
+    public void setId(UUID uuid) {
+        id = uuid;
     }
 
     @PrePersist
     public void autofill() {
-        this.setUuid(UUID.randomUUID());
+        this.setId(UUID.randomUUID());
     }
 
     @Column(name = "owner_id")
-    private Integer OwnerId;
+    private String OwnerId;
 
     @Column(name = "title")
     private String Title;
@@ -67,11 +54,11 @@ public class Desires {
     @Column(name = "is_closed")
     private Integer IsClosed;
 
-    public Integer getOwnerId() {
+    public String getOwnerId() {
         return OwnerId;
     }
 
-    public void setOwnerId(Integer ownerId) {
+    public void setOwnerId(String ownerId) {
         OwnerId = ownerId;
     }
 

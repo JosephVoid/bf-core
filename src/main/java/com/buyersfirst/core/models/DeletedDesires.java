@@ -8,8 +8,6 @@ import org.hibernate.annotations.JdbcTypeCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -18,46 +16,35 @@ import jakarta.persistence.Table;
 @Table(schema = "deleted_desires")
 public class DeletedDesires {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer primKey;
+    @Column(name = "id", updatable = false)
+    @JdbcTypeCode(Types.VARCHAR)
+    private UUID primKey;
 
-    public Integer getPrimKey() {
+    public UUID getPrimKey() {
         return primKey;
     }
 
-    public void setPrimKey(Integer primKey) {
-        this.primKey = primKey;
-    }
-
-    private Integer id;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    @Column(name = "uuid", updatable = false)
-    @JdbcTypeCode(Types.VARCHAR)
-    private UUID Uuid;
-
-    public UUID getUuid() {
-        return Uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        Uuid = uuid;
+    public void setPrimKey(UUID uuid) {
+        primKey = uuid;
     }
 
     @PrePersist
     public void autofill() {
-        this.setUuid(UUID.randomUUID());
+        this.setPrimKey(UUID.randomUUID());
+    }
+
+    private String id;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Column(name = "owner_id")
-    private Integer OwnerId;
+    private String OwnerId;
 
     @Column(name = "title")
     private String Title;
@@ -78,7 +65,7 @@ public class DeletedDesires {
     private Integer IsClosed;
 
     public DeletedDesires(Desires desire) {
-        this.id = desire.getId();
+        this.id = desire.getId().toString();
         OwnerId = desire.getOwnerId();
         Title = desire.getTitle();
         Description = desire.getDescription();
@@ -88,11 +75,11 @@ public class DeletedDesires {
         IsClosed = desire.getIsClosed();
     }
 
-    public Integer getOwnerId() {
+    public String getOwnerId() {
         return OwnerId;
     }
 
-    public void setOwnerId(Integer ownerId) {
+    public void setOwnerId(String ownerId) {
         OwnerId = ownerId;
     }
 

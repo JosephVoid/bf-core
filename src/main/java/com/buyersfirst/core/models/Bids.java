@@ -8,8 +8,6 @@ import org.hibernate.annotations.JdbcTypeCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -18,39 +16,28 @@ import jakarta.persistence.Table;
 @Table(schema = "bids")
 public class Bids {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "id", updatable = false)
+    @JdbcTypeCode(Types.VARCHAR)
+    private UUID id;
 
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    @Column(name = "uuid", updatable = false)
-    @JdbcTypeCode(Types.VARCHAR)
-    private UUID Uuid;
-
-    public UUID getUuid() {
-        return Uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        Uuid = uuid;
+    public void setId(UUID uuid) {
+        id = uuid;
     }
 
     @PrePersist
     public void autofill() {
-        this.setUuid(UUID.randomUUID());
+        this.setId(UUID.randomUUID());
     }
 
     @Column(name = "desire_id")
-    private Integer DesireId;
+    private String DesireId;
 
     @Column(name = "owner_id")
-    private Integer OwnerId;
+    private String OwnerId;
 
     @Column(name = "description")
     private String Description;
@@ -70,7 +57,7 @@ public class Bids {
     public Bids() {
     }
 
-    public Bids(Integer desireId, Integer ownerId, String description, Double bidPrice, String picture,
+    public Bids(String desireId, String ownerId, String description, Double bidPrice, String picture,
             Timestamp bidDateTime, Integer isClosed) {
         DesireId = desireId;
         OwnerId = ownerId;
@@ -81,19 +68,19 @@ public class Bids {
         IsClosed = isClosed;
     }
 
-    public Integer getDesireId() {
+    public String getDesireId() {
         return DesireId;
     }
 
-    public void setDesireId(Integer desireId) {
+    public void setDesireId(String desireId) {
         DesireId = desireId;
     }
 
-    public Integer getOwnerId() {
+    public String getOwnerId() {
         return OwnerId;
     }
 
-    public void setOwnerId(Integer ownerId) {
+    public void setOwnerId(String ownerId) {
         OwnerId = ownerId;
     }
 

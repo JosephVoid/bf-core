@@ -8,8 +8,6 @@ import org.hibernate.annotations.JdbcTypeCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -18,53 +16,42 @@ import jakarta.persistence.Table;
 @Table(schema = "accepted_bids")
 public class AcceptedBids {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "id", updatable = false)
+    @JdbcTypeCode(Types.VARCHAR)
+    private UUID id;
 
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    @Column(name = "uuid", updatable = false)
-    @JdbcTypeCode(Types.VARCHAR)
-    private UUID Uuid;
-
-    public UUID getUuid() {
-        return Uuid;
-    }
-
-    public void setUuid(UUID uuid) {
-        Uuid = uuid;
+    public void setId(UUID uuid) {
+        id = uuid;
     }
 
     @PrePersist
     public void autofill() {
-        this.setUuid(UUID.randomUUID());
+        this.setId(UUID.randomUUID());
     }
 
     @Column(name = "user_id")
-    private Integer UserId;
+    private String UserId;
 
-    public Integer getUserId() {
+    public String getUserId() {
         return UserId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(String userId) {
         UserId = userId;
     }
 
     @Column(name = "bid_id")
-    private Integer BidId;
+    private String BidId;
 
-    public Integer getBidId() {
+    public String getBidId() {
         return BidId;
     }
 
-    public void setBidId(Integer bidId) {
+    public void setBidId(String bidId) {
         BidId = bidId;
     }
 
@@ -74,7 +61,7 @@ public class AcceptedBids {
     public AcceptedBids() {
     }
 
-    public AcceptedBids(Integer userId, Integer bidId, Timestamp acceptedOn) {
+    public AcceptedBids(String userId, String bidId, Timestamp acceptedOn) {
         UserId = userId;
         BidId = bidId;
         AcceptedOn = acceptedOn;
