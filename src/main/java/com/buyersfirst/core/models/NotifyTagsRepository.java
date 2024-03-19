@@ -16,13 +16,13 @@ public interface NotifyTagsRepository extends CrudRepository<NotifyTags, Integer
             WHERE tag_id IN (:id)
             GROUP BY phone;
                 """, nativeQuery = true)
-    String[][] findContactByTag(Integer[] id);
+    String[][] findContactByTag(String[] id);
 
     @Query("SELECT nt FROM NotifyTags nt where nt.tagId = :tagId AND nt.userId = :userId")
-    List<NotifyTags> findByTagAndUser(Integer userId, Integer tagId);
+    List<NotifyTags> findByTagAndUser(String userId, String tagId);
 
     @Modifying(clearAutomatically = true)
     @Transactional
     @Query(value = "DELETE FROM notify_tags_user WHERE tag_id = :tagId AND user_id = :userId", nativeQuery = true)
-    void deleteNotifyTags(Integer userId, Integer tagId);
+    void deleteNotifyTags(String userId, String tagId);
 }
