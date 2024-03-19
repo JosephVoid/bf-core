@@ -2,6 +2,7 @@ package com.buyersfirst.core.models;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -9,7 +10,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import jakarta.transaction.Transactional;
 
-public interface UserWantsRepository extends CrudRepository<UserWants, Integer> {
+public interface UserWantsRepository extends CrudRepository<UserWants, UUID> {
     @Query("SELECT uw FROM UserWants uw where uw.DesireId = ?1 AND uw.UserId = ?2")
     List<UserWants> findByDesireUserId(String desireId, String userId);
 

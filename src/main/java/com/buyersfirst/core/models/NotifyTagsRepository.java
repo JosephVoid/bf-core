@@ -1,6 +1,7 @@
 package com.buyersfirst.core.models;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -8,7 +9,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import jakarta.transaction.Transactional;
 
-public interface NotifyTagsRepository extends CrudRepository<NotifyTags, Integer> {
+public interface NotifyTagsRepository extends CrudRepository<NotifyTags, UUID> {
     @Query(value = """
             SELECT phone, GROUP_CONCAT(tags.name) AS tags
             FROM notify_tags_user

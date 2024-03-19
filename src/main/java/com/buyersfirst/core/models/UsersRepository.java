@@ -1,6 +1,7 @@
 package com.buyersfirst.core.models;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -8,7 +9,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import jakarta.transaction.Transactional;
 
-public interface UsersRepository extends CrudRepository<Users, Integer> {
+public interface UsersRepository extends CrudRepository<Users, UUID> {
         Users findByEmail(String email);
 
         @Query(value = """
