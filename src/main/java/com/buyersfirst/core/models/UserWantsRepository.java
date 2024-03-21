@@ -19,7 +19,7 @@ public interface UserWantsRepository extends CrudRepository<UserWants, UUID> {
 
     @Modifying(clearAutomatically = true)
     @Transactional
-    @Query("INSERT INTO UserWants (UserId, DesireId, WantedOn) VALUES (?2, ?1, ?3)")
+    @Query(value = "INSERT INTO user_wants (`id`, `user_id`, `desire_id`, `wanted_on`) VALUES (uuid(), ?2, ?1, ?3)", nativeQuery = true)
     void addUserWants(String desireId, String userId, Timestamp wantedOn);
 
     @Modifying(clearAutomatically = true)

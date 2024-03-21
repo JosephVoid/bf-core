@@ -16,7 +16,7 @@ import jakarta.persistence.Table;
 @Table(schema = "deleted_desires")
 public class DeletedDesires {
     @Id
-    @Column(name = "id", updatable = false)
+    @Column(name = "prim_key", updatable = false)
     @JdbcTypeCode(Types.VARCHAR)
     private UUID primKey;
 
