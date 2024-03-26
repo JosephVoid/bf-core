@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import com.buyersfirst.core.interfaces.DesireCache;
+import com.buyersfirst.core.interfaces.DesireListComplete;
 import com.buyersfirst.core.interfaces.DesireListRsp;
 import com.buyersfirst.core.interfaces.SingleDesire;
 import com.buyersfirst.core.models.Bids;
@@ -33,8 +35,8 @@ public class DesireGetControllers {
     @Autowired
     RedisCacheService redisCacheService;
 
-    @GetMapping(path = "/all")
-    public @ResponseBody List<DesireListRsp> listDesires(
+    @GetMapping(path = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody DesireListComplete listDesires(
             @RequestParam(value = "per-page", defaultValue = "20") Integer perPage,
             @RequestParam(value = "page", defaultValue = "1") Integer page,
             @RequestParam(value = "filter-by", defaultValue = "") String filterBy,
@@ -56,8 +58,11 @@ public class DesireGetControllers {
             if (redisCacheService.jedis.exists("all-desires")) {
                 String cachedString = redisCacheService.jedis.get("all-desires");
                 List<DesireListRsp> cachedDesires = mapper.readValue(cachedString, DesireCache.class).allDesires;
-
-                return cachedDesires.subList(perPage * (page - 1), Math.min(cachedDesires.size(), perPage * page));
+                ArrayList<DesireListRsp> partitionedDesires = new ArrayList<DesireListRsp>(cachedDesires
+                        .subList(perPage * (page - 1), Math.min(cachedDesires.size(), perPage * page)));
+                DesireListComplete result = new DesireListComplete.DesireListBuilder().build(page, perPage, page,
+                        partitionedDesires);
+                return result;
             }
 
             /* ################################################################### */
@@ -106,8 +111,11 @@ public class DesireGetControllers {
             redisCacheService.jedis.setex("all-desires", 3600, mapper.writeValueAsString(desireCache));
 
             /* ################################################################### */
-
-            return desires.subList(perPage * (page - 1), Math.min(desires.size(), perPage * page));
+            ArrayList<DesireListRsp> partitionedDesires = new ArrayList<DesireListRsp>(desires
+                    .subList(perPage * (page - 1), Math.min(desires.size(), perPage * page)));
+            DesireListComplete result = new DesireListComplete.DesireListBuilder().build(page, perPage, page,
+                    partitionedDesires);
+            return result;
 
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
