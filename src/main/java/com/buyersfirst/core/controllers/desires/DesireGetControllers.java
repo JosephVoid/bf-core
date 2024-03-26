@@ -70,14 +70,14 @@ public class DesireGetControllers {
              * Empty ArrayList to store the created desires id, used to remove duplicate
              * rows
              */
-            ArrayList<Integer> createdDesires = new ArrayList<Integer>();
+            ArrayList<String> createdDesires = new ArrayList<String>();
             /* Loop through the 2*2 array for response */
             for (int i = 0; i < dbResponse.length; i++) {
                 final String[] Row = dbResponse[i];
                 /* If the desire is already created, just append the tag name the desire */
-                if (!createdDesires.contains(Integer.parseInt(Row[0]))) {
+                if (!createdDesires.contains(Row[0])) {
                     DesireListRsp dsr = new DesireListRsp(
-                            Integer.parseInt(Row[0]),
+                            Row[0],
                             Row[3],
                             Row[4],
                             Row[1] + " " + Row[2],
@@ -115,7 +115,7 @@ public class DesireGetControllers {
     }
 
     @GetMapping(path = "/{id}")
-    public @ResponseBody SingleDesire getDesire(@PathVariable Integer id) {
+    public @ResponseBody SingleDesire getDesire(@PathVariable String id) {
         try {
             /* From DB */
             String[][] dbResponse = desiresRepository.findADesireJoined(id);
@@ -123,7 +123,7 @@ public class DesireGetControllers {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire doesnt exist");
             /* Create the single desire, without tags or bids */
             SingleDesire dsr = new SingleDesire(
-                    Integer.parseInt(dbResponse[0][0]),
+                    dbResponse[0][0],
                     dbResponse[0][3],
                     dbResponse[0][4],
                     dbResponse[0][1] + " " + dbResponse[0][2],
@@ -137,7 +137,7 @@ public class DesireGetControllers {
                     // For Tags
                     new ArrayList<String>(),
                     // For Bid Ids
-                    new ArrayList<Integer>());
+                    new ArrayList<String>());
             /* Add the tags on the desire */
             for (int i = 0; i < dbResponse.length; i++) {
                 final String[] Row = dbResponse[i];
@@ -145,7 +145,7 @@ public class DesireGetControllers {
             }
             /* Add the bids to the desires */
             List<Bids> bids = bidsRepository.findByDesireId(dsr.id);
-            bids.iterator().forEachRemaining((bid) -> dsr.bidList.add(bid.getId()));
+            bids.iterator().forEachRemaining((bid) -> dsr.bidList.add(bid.getId().toString()));
 
             return dsr;
 
@@ -196,14 +196,14 @@ public class DesireGetControllers {
              * Empty ArrayList to store the created desires id, used to remove duplicate
              * rows
              */
-            ArrayList<Integer> createdDesires = new ArrayList<Integer>();
+            ArrayList<String> createdDesires = new ArrayList<String>();
             /* Loop through the 2*2 array for response */
             for (int i = 0; i < dbResponse.length; i++) {
                 final String[] Row = dbResponse[i];
                 /* If the desire is already created, just append the tag name the desire */
-                if (!createdDesires.contains(Integer.parseInt(Row[0]))) {
+                if (!createdDesires.contains(Row[0])) {
                     DesireListRsp dsr = new DesireListRsp(
-                            Integer.parseInt(Row[0]),
+                            Row[0],
                             Row[3],
                             Row[4],
                             Row[1] + " " + Row[2],

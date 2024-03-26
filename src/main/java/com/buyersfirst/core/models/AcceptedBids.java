@@ -1,58 +1,76 @@
 package com.buyersfirst.core.models;
 
 import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.UUID;
+
+import org.hibernate.annotations.JdbcTypeCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(schema = "accepted_bids")
 public class AcceptedBids {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    public Integer getId() {
+    @Column(name = "id", updatable = false)
+    @JdbcTypeCode(Types.VARCHAR)
+    private UUID id;
+
+    public UUID getId() {
         return id;
     }
-    public void setId(Integer id) {
-        this.id = id;
-    }
-    
-    @Column(name = "user_id")
-    private Integer UserId;
 
-    public Integer getUserId() {
+    public void setId(UUID uuid) {
+        id = uuid;
+    }
+
+    @PrePersist
+    public void autofill() {
+        this.setId(UUID.randomUUID());
+    }
+
+    @Column(name = "user_id")
+    private String UserId;
+
+    public String getUserId() {
         return UserId;
     }
-    public void setUserId(Integer userId) {
+
+    public void setUserId(String userId) {
         UserId = userId;
     }
 
     @Column(name = "bid_id")
-    private Integer BidId;
-    public Integer getBidId() {
+    private String BidId;
+
+    public String getBidId() {
         return BidId;
     }
-    public void setBidId(Integer bidId) {
+
+    public void setBidId(String bidId) {
         BidId = bidId;
     }
 
     @Column(name = "accepted_on")
     private Timestamp AcceptedOn;
+
     public AcceptedBids() {
     }
-    public AcceptedBids(Integer userId, Integer bidId, Timestamp acceptedOn) {
+
+    public AcceptedBids(String userId, String bidId, Timestamp acceptedOn) {
         UserId = userId;
         BidId = bidId;
         AcceptedOn = acceptedOn;
     }
+
     public Timestamp getAcceptedOn() {
         return AcceptedOn;
     }
+
     public void setAcceptedOn(Timestamp acceptedOn) {
         AcceptedOn = acceptedOn;
     }

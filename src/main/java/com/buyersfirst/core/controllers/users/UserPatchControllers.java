@@ -1,5 +1,7 @@
 package com.buyersfirst.core.controllers.users;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,30 +22,30 @@ import jakarta.security.auth.message.AuthException;
 @RestController
 @RequestMapping(path = "/users")
 public class UserPatchControllers {
-    
+
     @Autowired
     TokenParser tokenParser;
     @Autowired
     UsersRepository usersRepository;
 
     @PatchMapping(path = "/")
-    @ResponseBody Users updateUsers (@RequestHeader("Authorization") String auth, @RequestBody UserModify body) {
+    @ResponseBody
+    Users updateUsers(@RequestHeader("Authorization") String auth, @RequestBody UserModify body) {
         try {
-            Integer userId = tokenParser.getUserId(auth);
+            String userId = tokenParser.getUserId(auth);
 
             BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(10);
             /* Update the user */
             usersRepository.updateUsers(
-                userId, 
-                body.first_name, 
-                body.last_name, 
-                body.email, 
-                body.password == null ? null : bCryptPasswordEncoder.encode(body.password), 
-                body.description, 
-                body.phone, 
-                body.picture
-            );
-            Users responseUser = usersRepository.findById(userId).get();
+                    userId,
+                    body.first_name,
+                    body.last_name,
+                    body.email,
+                    body.password == null ? null : bCryptPasswordEncoder.encode(body.password),
+                    body.description,
+                    body.phone,
+                    body.picture);
+            Users responseUser = usersRepository.findById(UUID.fromString(userId)).get();
             responseUser.setPassword("");
             return responseUser;
         } catch (AuthException e) {

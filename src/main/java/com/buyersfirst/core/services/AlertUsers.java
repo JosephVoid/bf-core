@@ -2,6 +2,7 @@ package com.buyersfirst.core.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,11 +27,11 @@ public class AlertUsers {
     @Autowired
     UserWantsRepository userWantsRepository;
 
-    public boolean alertForTags(String desireName, Integer tags[]) {
+    public boolean alertForTags(String desireName, String tagIds[]) {
         try {
             String templateString = "Someone wants \"" + truncateStr(desireName)
                     + "\", Go to Buyer's First to check it out. ";
-            String[][] userTagList = notifyTagsRepository.findContactByTag(tags);
+            String[][] userTagList = notifyTagsRepository.findContactByTag(tagIds);
             ArrayList<Alert> alertList = transformAlerts(userTagList);
             for (int i = 0; i < alertList.size(); i++) {
                 Alert alert = alertList.get(i);
@@ -45,18 +46,18 @@ public class AlertUsers {
         }
     }
 
-    public boolean alertDesireOwnerForbid(Integer desireOwner, String desireTitle, Double price) {
+    public boolean alertDesireOwnerForbid(String desireOwner, String desireTitle, Double price) {
         String templateString = "Someone just bid Br " + String.valueOf(price) + " for your desire \""
                 + truncateStr(desireTitle)
                 + "\", Go to Buyer's First to check it out. ";
-        String userPhone = usersRepository.findById(desireOwner).get().getPhone();
+        String userPhone = usersRepository.findById(UUID.fromString(desireOwner)).get().getPhone();
         System.out.println(userPhone + " : " + templateString);
         if (!notificationService.sendSMS(userPhone, templateString))
             return false;
         return true;
     }
 
-    public boolean alertUsersWhoWantedTheDesire(Integer desireId, String desireTitle, Double price) {
+    public boolean alertUsersWhoWantedTheDesire(String desireId, String desireTitle, Double price) {
         String templateString = "Someone just bid Br " + String.valueOf(price) + " for \""
                 + truncateStr(desireTitle)
                 + "\", which you also wanted, Go to Buyer's First to check it out. ";
@@ -68,10 +69,10 @@ public class AlertUsers {
         return true;
     }
 
-    public boolean alertOnBidAccept(Integer bidOwnerId, Integer desireId) {
-        Desires desire = desiresRepository.findById(desireId).get();
-        Users desireOwner = usersRepository.findById(desire.getOwnerId()).get();
-        Users bidOwner = usersRepository.findById(bidOwnerId).get();
+    public boolean alertOnBidAccept(String bidOwnerId, String desireId) {
+        Desires desire = desiresRepository.findById(UUID.fromString(desireId)).get();
+        Users desireOwner = usersRepository.findById(UUID.fromString(desire.getOwnerId())).get();
+        Users bidOwner = usersRepository.findById(UUID.fromString(bidOwnerId)).get();
         String templateString = "Your bid for \"" + truncateStr(desire.getTitle())
                 + "\" has been accepted. Contact "
                 + desireOwner.getFirst_name()

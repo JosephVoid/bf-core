@@ -11,9 +11,9 @@ public class TokenParser {
     @Autowired
     private JWTBuilder jwtBuilder;
 
-    public Integer getUserId(String token) throws AuthException{
+    public String getUserId(String token) throws AuthException {
         JwtClaims claims = jwtBuilder.generateParseToken(token);
-        Integer userId = Integer.parseInt(claims.getClaimValue("userId").toString());
+        String userId = claims.getClaimValue("userId").toString();
         return userId;
     }
 }

@@ -2,6 +2,7 @@ package com.buyersfirst.core.controllers.desires;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,11 +35,13 @@ public class DesirePatchControllers {
     DesireTagsRepository desireTagsRepository;
 
     @PatchMapping(path = "/{id}")
-    @ResponseBody Desires updateDesire (@RequestHeader("Authorization") String auth, @PathVariable Integer id, @RequestBody CreateDesiresRqB body) {
+    @ResponseBody
+    Desires updateDesire(@RequestHeader("Authorization") String auth, @PathVariable String id,
+            @RequestBody CreateDesiresRqB body) {
         try {
-            Integer userId = tokenParser.getUserId(auth);
+            String userId = tokenParser.getUserId(auth);
             /* Check if user owns the desire */
-            List<Integer> desires = desiresRepository.listDesiresByOwner(userId);
+            List<String> desires = desiresRepository.listDesiresByOwner(userId);
             if (!desires.contains(id))
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not owner");
             /* Update the desire */
@@ -47,12 +50,12 @@ public class DesirePatchControllers {
             if (body.tags_id != null && body.tags_id.length != 0) {
                 desireTagsRepository.deleteByDesireId(id);
                 ArrayList<DesireTags> dTags = new ArrayList<DesireTags>();
-                for (Integer tag : body.tags_id) {
+                for (String tag : body.tags_id) {
                     dTags.add(new DesireTags(tag, id));
                 }
                 desireTagsRepository.saveAll(dTags);
             }
-            return desiresRepository.findById(id).get();
+            return desiresRepository.findById(UUID.fromString(id)).get();
         } catch (AuthException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Auth Header Issue");
         } catch (ResponseStatusException e) {
@@ -60,5 +63,5 @@ public class DesirePatchControllers {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         }
-    }    
+    }
 }

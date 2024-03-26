@@ -1,6 +1,7 @@
 package com.buyersfirst.core.controllers.desires;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,7 @@ import jakarta.security.auth.message.AuthException;
 @RestController
 @RequestMapping(path = "/desires")
 public class DesireDeleteController {
-    
+
     @Autowired
     TokenParser tokenParser;
     @Autowired
@@ -35,21 +36,22 @@ public class DesireDeleteController {
     DesireTagsRepository desireTagsRepository;
 
     @DeleteMapping(path = "/{id}")
-    @ResponseBody Desires deleteDesire (@RequestHeader("Authorization") String auth, @PathVariable Integer id) {
+    @ResponseBody
+    Desires deleteDesire(@RequestHeader("Authorization") String auth, @PathVariable String id) {
         try {
-            Integer userId = tokenParser.getUserId(auth);
+            String userId = tokenParser.getUserId(auth);
             /* Check if the desire is there */
-            Optional<Desires> desire = desiresRepository.findById(id);
+            Optional<Desires> desire = desiresRepository.findById(UUID.fromString(id));
             if (!desire.isPresent())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire does not exist");
-            /* Check if the user is the owner*/
+            /* Check if the user is the owner */
             if (desire.get().getOwnerId() != userId)
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't delete desire");
             /* Save desire to deleted desires */
             deletedDesiresRepository.save(new DeletedDesires(desire.get()));
             /* Delete the desire */
             desiresRepository.deleteById(desire.get().getId());
-            /* Delete the desire from the tags table*/
+            /* Delete the desire from the tags table */
             desireTagsRepository.deleteByDesireId(id);
 
             return desire.get();
@@ -61,6 +63,6 @@ public class DesireDeleteController {
         } catch (Exception e) {
             System.out.println(e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
-        }        
+        }
     }
 }

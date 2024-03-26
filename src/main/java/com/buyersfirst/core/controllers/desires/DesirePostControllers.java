@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,7 +49,7 @@ public class DesirePostControllers {
         if (request.title == null || request.description == null || request.price == null || request.tags_id == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Input");
         try {
-            Integer userId = tokenParser.getUserId(auth);
+            String userId = tokenParser.getUserId(auth);
             /* Validate input */
             if (request.title.length() > 100 || request.description.length() > 500)
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Input size limit exceed");
@@ -68,7 +69,7 @@ public class DesirePostControllers {
             /* Save Desire Tag relation */
             ArrayList<DesireTags> desireTags = new ArrayList<DesireTags>();
             for (int i = 0; i < request.tags_id.length; i++) {
-                desireTags.add(new DesireTags(request.tags_id[i], savedDesire.getId()));
+                desireTags.add(new DesireTags(request.tags_id[i], savedDesire.getId().toString()));
             }
             desireTagsRepository.saveAll(desireTags);
 
@@ -82,15 +83,15 @@ public class DesirePostControllers {
 
     @PostMapping(path = "/{id}/recreate")
     public @ResponseBody Desires reCreateDesires(@RequestHeader("Authorization") String auth,
-            @PathVariable Integer id) {
+            @PathVariable String id) {
         try {
-            Integer userId = tokenParser.getUserId(auth);
+            String userId = tokenParser.getUserId(auth);
             /* Get the desire to recreate from */
-            Optional<Desires> oldDesire = desiresRepository.findById(id);
+            Optional<Desires> oldDesire = desiresRepository.findById(UUID.fromString(id));
             if (!oldDesire.isPresent())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire does not exist");
             /* Close the previous desire */
-            desiresRepository.UpdateIsClosedStatus(oldDesire.get().getId(), 1);
+            desiresRepository.UpdateIsClosedStatus(oldDesire.get().getId().toString(), 1);
             /* Save desire */
             Desires desire = new Desires();
             desire.setCreated(new Timestamp(System.currentTimeMillis()));
@@ -107,9 +108,9 @@ public class DesirePostControllers {
 
             /* Save Desire Tag relation */
             ArrayList<DesireTags> desireTags = new ArrayList<DesireTags>();
-            List<DesireTags> oldDesireTags = desireTagsRepository.findByDesireId(oldDesire.get().getId());
+            List<DesireTags> oldDesireTags = desireTagsRepository.findByDesireId(oldDesire.get().getId().toString());
             for (int i = 0; i < oldDesireTags.size(); i++) {
-                desireTags.add(new DesireTags(oldDesireTags.get(i).getTagId(), savedDesire.getId()));
+                desireTags.add(new DesireTags(oldDesireTags.get(i).getTagId(), savedDesire.getId().toString()));
             }
             desireTagsRepository.saveAll(desireTags);
 
@@ -126,11 +127,11 @@ public class DesirePostControllers {
     }
 
     @PostMapping(path = "/{id}/close")
-    public @ResponseBody Desires closeDesires(@RequestHeader("Authorization") String auth, @PathVariable Integer id) {
+    public @ResponseBody Desires closeDesires(@RequestHeader("Authorization") String auth, @PathVariable String id) {
         try {
             tokenParser.getUserId(auth);
             /* Check if the desire is there */
-            Optional<Desires> desire = desiresRepository.findById(id);
+            Optional<Desires> desire = desiresRepository.findById(UUID.fromString(id));
             if (!desire.isPresent())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire does not exist");
             /* Close the desire if not closed already */
@@ -138,7 +139,7 @@ public class DesirePostControllers {
                 desiresRepository.UpdateIsClosedStatus(id, 1);
             else
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire already closed");
-            return desiresRepository.findById(id).get();
+            return desiresRepository.findById(UUID.fromString(id)).get();
 
         } catch (AuthException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Auth Header Issue");
@@ -151,11 +152,11 @@ public class DesirePostControllers {
     }
 
     @PostMapping(path = "/want/{id}")
-    public @ResponseBody Desires wantDesires(@RequestHeader("Authorization") String auth, @PathVariable Integer id) {
+    public @ResponseBody Desires wantDesires(@RequestHeader("Authorization") String auth, @PathVariable String id) {
         try {
-            Integer userId = tokenParser.getUserId(auth);
+            String userId = tokenParser.getUserId(auth);
             /* Check if the desire is there */
-            Optional<Desires> desire = desiresRepository.findById(id);
+            Optional<Desires> desire = desiresRepository.findById(UUID.fromString(id));
             if (!desire.isPresent())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire does not exist");
             /* Check if there is a Want before */
@@ -180,11 +181,11 @@ public class DesirePostControllers {
     }
 
     @PostMapping(path = "/not-want/{id}")
-    public @ResponseBody Desires notWantDesires(@RequestHeader("Authorization") String auth, @PathVariable Integer id) {
+    public @ResponseBody Desires notWantDesires(@RequestHeader("Authorization") String auth, @PathVariable String id) {
         try {
-            Integer userId = tokenParser.getUserId(auth);
+            String userId = tokenParser.getUserId(auth);
             /* Check if the desire is there */
-            Optional<Desires> desire = desiresRepository.findById(id);
+            Optional<Desires> desire = desiresRepository.findById(UUID.fromString(id));
             if (!desire.isPresent())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire does not exist");
             /* Check if there is a Want before */

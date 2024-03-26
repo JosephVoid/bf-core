@@ -1,6 +1,7 @@
 package com.buyersfirst.core.models;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -8,11 +9,11 @@ import org.springframework.data.repository.CrudRepository;
 
 import jakarta.transaction.Transactional;
 
-public interface DesiresRepository extends CrudRepository<Desires, Integer> {
+public interface DesiresRepository extends CrudRepository<Desires, UUID> {
     @Modifying(clearAutomatically = true)
     @Transactional
     @Query("UPDATE Desires SET IsClosed = ?2 where id = ?1")
-    void UpdateIsClosedStatus(Integer id, Integer status);
+    void UpdateIsClosedStatus(String id, Integer status);
 
     /**
      * @param filterBy Valid tag names
@@ -161,10 +162,10 @@ public interface DesiresRepository extends CrudRepository<Desires, Integer> {
             WHERE desires.id = :id AND desires.id IS NOT NULL
             GROUP BY desires.id, users.first_name, users.last_name, desires.title, desires.description, desires.desired_price, desires.picture, desires.created, desires.is_closed, tags.name, bids_count, wants_count, views_count
             """, nativeQuery = true)
-    String[][] findADesireJoined(Integer id);
+    String[][] findADesireJoined(String id);
 
     @Query("SELECT dsr.id FROM Desires dsr WHERE dsr.OwnerId=?1")
-    List<Integer> listDesiresByOwner(Integer id);
+    List<String> listDesiresByOwner(String id);
 
     @Modifying(clearAutomatically = true)
     @Transactional
@@ -176,5 +177,5 @@ public interface DesiresRepository extends CrudRepository<Desires, Integer> {
                     picture = COALESCE(:pic, picture)
                     WHERE desires.id = :id
             """, nativeQuery = true)
-    void updateDesire(Integer id, String title, String desc, Double price, String pic);
+    void updateDesire(String id, String title, String desc, Double price, String pic);
 }

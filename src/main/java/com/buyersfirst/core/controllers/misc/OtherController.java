@@ -1,6 +1,8 @@
 package com.buyersfirst.core.controllers.misc;
 
 import java.sql.Timestamp;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,9 +35,9 @@ public class OtherController {
 
     @PostMapping(path = "/view/{type}/{itemId}")
     void viewItem(@RequestHeader("Authorization") String auth, @PathVariable String type,
-            @PathVariable Integer itemId) {
+            @PathVariable String itemId) {
         try {
-            Integer userId = tokenParser.getUserId(auth);
+            String userId = tokenParser.getUserId(auth);
             if (!type.equals("desire") && !type.equals("bid"))
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Input");
             viewsRepository.save(
@@ -55,10 +57,10 @@ public class OtherController {
     }
 
     @PostMapping(path = "/set-alert")
-    void setAlert(@RequestHeader("Authorization") String auth, @RequestParam Integer tagId) {
+    void setAlert(@RequestHeader("Authorization") String auth, @RequestParam String tagId) {
         try {
-            Integer userId = tokenParser.getUserId(auth);
-            Users alertedUser = usersRepository.findById(userId).get();
+            String userId = tokenParser.getUserId(auth);
+            Users alertedUser = usersRepository.findById(UUID.fromString(userId)).get();
             if (notifyTagsRepository.findByTagAndUser(userId, tagId).size() != 0)
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Alert already set");
             notifyTagsRepository.save(new NotifyTags(tagId, userId, alertedUser.getEmail(), alertedUser.getPhone()));
@@ -73,9 +75,9 @@ public class OtherController {
     }
 
     @PostMapping(path = "/remove-alert")
-    void removeAlert(@RequestHeader("Authorization") String auth, @RequestParam Integer tagId) {
+    void removeAlert(@RequestHeader("Authorization") String auth, @RequestParam String tagId) {
         try {
-            Integer userId = tokenParser.getUserId(auth);
+            String userId = tokenParser.getUserId(auth);
             notifyTagsRepository.deleteNotifyTags(userId, tagId);
         } catch (AuthException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Auth Header Issue");

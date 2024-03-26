@@ -1,32 +1,43 @@
 package com.buyersfirst.core.models;
 
 import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.UUID;
+
+import org.hibernate.annotations.JdbcTypeCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(schema = "user_wants")
 public class UserWants {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    public Integer getId() {
+    @Column(name = "id", updatable = false)
+    @JdbcTypeCode(Types.VARCHAR)
+    private UUID id;
+
+    public UUID getId() {
         return id;
     }
-    public void setId(Integer id) {
-        this.id = id;
-    }    
+
+    public void setId(UUID uuid) {
+        id = uuid;
+    }
+
+    @PrePersist
+    public void autofill() {
+        this.setId(UUID.randomUUID());
+    }
 
     @Column(name = "user_id")
-    private Integer UserId;
+    private String UserId;
 
     @Column(name = "desire_id")
-    private Integer DesireId;
+    private String DesireId;
 
     @Column(name = "wanted_on")
     private Timestamp WantedOn;
@@ -34,19 +45,24 @@ public class UserWants {
     public Timestamp getWantedOn() {
         return WantedOn;
     }
+
     public void setWantedOn(Timestamp wantedOn) {
         WantedOn = wantedOn;
     }
-    public Integer getUserId() {
+
+    public String getUserId() {
         return UserId;
     }
-    public void setUserId(Integer userId) {
+
+    public void setUserId(String userId) {
         UserId = userId;
     }
-    public Integer getDesireId() {
+
+    public String getDesireId() {
         return DesireId;
     }
-    public void setDesireId(Integer desireId) {
+
+    public void setDesireId(String desireId) {
         DesireId = desireId;
     }
 }

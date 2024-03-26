@@ -1,6 +1,8 @@
 package com.buyersfirst.core.controllers.bids;
 
 import java.util.List;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -27,16 +29,18 @@ public class BidPatchController {
     BidsRepository bidsRepository;
 
     @PatchMapping(path = "/{id}")
-    @ResponseBody Bids updateBids (@RequestHeader("Authorization") String auth, @PathVariable Integer id, @RequestBody CreateBidRqB body) {
+    @ResponseBody
+    Bids updateBids(@RequestHeader("Authorization") String auth, @PathVariable String id,
+            @RequestBody CreateBidRqB body) {
         try {
-            Integer userId = tokenParser.getUserId(auth);
+            String userId = tokenParser.getUserId(auth);
             /* Check if user owns the bid */
-            List<Integer> bids = bidsRepository.listBidsByOwner(userId);
+            List<String> bids = bidsRepository.listBidsByOwner(userId);
             if (!bids.contains(id))
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not owner");
             /* Update the bid */
             bidsRepository.updateBid(id, body.description, body.price, body.picture);
-            return bidsRepository.findById(id).get();
+            return bidsRepository.findById(UUID.fromString(id)).get();
         } catch (AuthException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Auth Header Issue");
         } catch (ResponseStatusException e) {

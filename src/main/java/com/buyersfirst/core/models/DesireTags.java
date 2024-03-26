@@ -1,49 +1,65 @@
 package com.buyersfirst.core.models;
 
+import java.sql.Types;
+import java.util.UUID;
+
+import org.hibernate.annotations.JdbcTypeCode;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(schema = "desire_tags")
 public class DesireTags {
-    
-    public DesireTags(Integer tagId, Integer desireId) {
+
+    public DesireTags(String tagId, String desireId) {
         TagId = tagId;
         DesireId = desireId;
     }
-    
-    public DesireTags () {}
-    
+
+    public DesireTags() {
+    }
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    public Integer getId() {
+    @Column(name = "id", updatable = false)
+    @JdbcTypeCode(Types.VARCHAR)
+    private UUID id;
+
+    public UUID getId() {
         return id;
     }
-    public void setId(Integer id) {
-        this.id = id;
-    }    
+
+    public void setId(UUID uuid) {
+        id = uuid;
+    }
+
+    @PrePersist
+    public void autofill() {
+        this.setId(UUID.randomUUID());
+    }
 
     @Column(name = "tag_id")
-    private Integer TagId;
+    private String TagId;
 
     @Column(name = "desire_id")
-    private Integer DesireId;
-    
-    public Integer getTagId() {
+    private String DesireId;
+
+    public String getTagId() {
         return TagId;
     }
-    public void setTagId(Integer tagId) {
+
+    public void setTagId(String tagId) {
         TagId = tagId;
     }
-    public Integer getDesireId() {
+
+    public String getDesireId() {
         return DesireId;
     }
-    public void setDesireId(Integer desireId) {
+
+    public void setDesireId(String desireId) {
         DesireId = desireId;
     }
 }
