@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import com.buyersfirst.core.interfaces.CreateBidRqB;
+
+import com.buyersfirst.core.dto.CreateBidRqB;
 import com.buyersfirst.core.models.Bids;
 import com.buyersfirst.core.models.BidsRepository;
 import com.buyersfirst.core.services.TokenParser;

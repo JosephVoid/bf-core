@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import com.buyersfirst.core.interfaces.CreateDesiresRqB;
+
+import com.buyersfirst.core.dto.CreateDesiresRqB;
 import com.buyersfirst.core.models.DesireTags;
 import com.buyersfirst.core.models.DesireTagsRepository;
 import com.buyersfirst.core.models.Desires;

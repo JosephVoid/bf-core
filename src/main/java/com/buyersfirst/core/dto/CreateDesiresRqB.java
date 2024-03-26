@@ -1,4 +1,4 @@
-package com.buyersfirst.core.interfaces;
+package com.buyersfirst.core.dto;
 
 public class CreateDesiresRqB {
     public String title;

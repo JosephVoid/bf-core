@@ -1,6 +1,7 @@
 package com.buyersfirst.core.controllers.misc;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,11 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.buyersfirst.core.dto.SetAlert;
 import com.buyersfirst.core.models.NotifyTags;
 import com.buyersfirst.core.models.NotifyTagsRepository;
 import com.buyersfirst.core.models.Tags;
@@ -63,28 +65,23 @@ public class OtherController {
     }
 
     @PostMapping(path = "/set-alert")
-    void setAlert(@RequestHeader("Authorization") String auth, @RequestParam String tagId) {
+    void setAlert(@RequestHeader("Authorization") String auth, @RequestBody SetAlert body) {
         try {
             String userId = tokenParser.getUserId(auth);
+
+            if (body.tag_ids.length > 3)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "More than 3 tags not allowed");
+
             Users alertedUser = usersRepository.findById(UUID.fromString(userId)).get();
-            if (notifyTagsRepository.findByTagAndUser(userId, tagId).size() != 0)
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Alert already set");
-            notifyTagsRepository.save(new NotifyTags(tagId, userId, alertedUser.getEmail(), alertedUser.getPhone()));
+            notifyTagsRepository.deleteNotifyTags(userId);
 
-        } catch (AuthException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Auth Header Issue");
-        } catch (ResponseStatusException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
-        }
-    }
+            List<NotifyTags> notifTags = new ArrayList<NotifyTags>();
 
-    @PostMapping(path = "/remove-alert")
-    void removeAlert(@RequestHeader("Authorization") String auth, @RequestParam String tagId) {
-        try {
-            String userId = tokenParser.getUserId(auth);
-            notifyTagsRepository.deleteNotifyTags(userId, tagId);
+            for (String tagId : body.tag_ids) {
+                notifTags.add(new NotifyTags(tagId, userId, alertedUser.getEmail(), alertedUser.getPhone()));
+            }
+
+            notifyTagsRepository.saveAll(notifTags);
         } catch (AuthException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Auth Header Issue");
         } catch (ResponseStatusException e) {

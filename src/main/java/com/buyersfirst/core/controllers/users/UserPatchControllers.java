@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import com.buyersfirst.core.interfaces.UserModify;
+
+import com.buyersfirst.core.dto.UserModify;
 import com.buyersfirst.core.models.Users;
 import com.buyersfirst.core.models.UsersRepository;
 import com.buyersfirst.core.services.TokenParser;

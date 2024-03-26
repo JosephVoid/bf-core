@@ -24,6 +24,6 @@ public interface NotifyTagsRepository extends CrudRepository<NotifyTags, UUID> {
 
     @Modifying(clearAutomatically = true)
     @Transactional
-    @Query(value = "DELETE FROM notify_tags_user WHERE tag_id = :tagId AND user_id = :userId", nativeQuery = true)
-    void deleteNotifyTags(String userId, String tagId);
+    @Query(value = "DELETE FROM notify_tags_user WHERE user_id = :userId", nativeQuery = true)
+    void deleteNotifyTags(String userId);
 }

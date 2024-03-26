@@ -6,7 +6,8 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.buyersfirst.core.interfaces.Alert;
+
+import com.buyersfirst.core.dto.Alert;
 import com.buyersfirst.core.models.Desires;
 import com.buyersfirst.core.models.DesiresRepository;
 import com.buyersfirst.core.models.NotifyTagsRepository;

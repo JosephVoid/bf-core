@@ -1,4 +1,4 @@
-package com.buyersfirst.core.interfaces;
+package com.buyersfirst.core.dto;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;

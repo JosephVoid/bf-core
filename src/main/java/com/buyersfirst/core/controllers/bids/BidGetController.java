@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.buyersfirst.core.interfaces.BidResponse;
+import com.buyersfirst.core.dto.BidResponse;
 import com.buyersfirst.core.models.BidsRepository;
 
 @RestController

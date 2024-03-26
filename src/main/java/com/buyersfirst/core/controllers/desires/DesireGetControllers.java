@@ -14,10 +14,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import com.buyersfirst.core.interfaces.DesireCache;
-import com.buyersfirst.core.interfaces.DesireListComplete;
-import com.buyersfirst.core.interfaces.DesireListRsp;
-import com.buyersfirst.core.interfaces.SingleDesire;
+
+import com.buyersfirst.core.dto.DesireCache;
+import com.buyersfirst.core.dto.DesireListComplete;
+import com.buyersfirst.core.dto.DesireListRsp;
+import com.buyersfirst.core.dto.SingleDesire;
 import com.buyersfirst.core.models.Bids;
 import com.buyersfirst.core.models.BidsRepository;
 import com.buyersfirst.core.models.DesiresRepository;
@@ -60,7 +61,8 @@ public class DesireGetControllers {
                 List<DesireListRsp> cachedDesires = mapper.readValue(cachedString, DesireCache.class).allDesires;
                 ArrayList<DesireListRsp> partitionedDesires = new ArrayList<DesireListRsp>(cachedDesires
                         .subList(perPage * (page - 1), Math.min(cachedDesires.size(), perPage * page)));
-                DesireListComplete result = new DesireListComplete.DesireListBuilder().build(page, perPage, page,
+                DesireListComplete result = new DesireListComplete.DesireListBuilder().build(partitionedDesires.size(),
+                        perPage, page,
                         partitionedDesires);
                 return result;
             }
@@ -113,7 +115,8 @@ public class DesireGetControllers {
             /* ################################################################### */
             ArrayList<DesireListRsp> partitionedDesires = new ArrayList<DesireListRsp>(desires
                     .subList(perPage * (page - 1), Math.min(desires.size(), perPage * page)));
-            DesireListComplete result = new DesireListComplete.DesireListBuilder().build(page, perPage, page,
+            DesireListComplete result = new DesireListComplete.DesireListBuilder().build(partitionedDesires.size(),
+                    perPage, page,
                     partitionedDesires);
             return result;
 
@@ -163,7 +166,7 @@ public class DesireGetControllers {
     }
 
     @GetMapping(path = "/search")
-    public @ResponseBody List<DesireListRsp> searchDesires(
+    public @ResponseBody DesireListComplete searchDesires(
             @RequestParam(value = "per-page", defaultValue = "20") Integer perPage,
             @RequestParam(value = "page", defaultValue = "1") Integer page,
             @RequestParam(value = "search-string", defaultValue = "") String searchString,
@@ -191,7 +194,14 @@ public class DesireGetControllers {
                             .contains(searchString.toLowerCase().replaceAll("\\s", "")))
                         searchedDesires.add(desire);
                 });
-                return searchedDesires.subList(perPage * (page - 1), Math.min(cachedDesires.size(), perPage * page));
+                ArrayList<DesireListRsp> partitionedDesires = new ArrayList<DesireListRsp>(searchedDesires
+                        .subList(perPage * (page - 1), Math.min(cachedDesires.size(), perPage * page)));
+
+                DesireListComplete result = new DesireListComplete.DesireListBuilder().build(partitionedDesires.size(),
+                        perPage, page,
+                        partitionedDesires);
+
+                return result;
             }
 
             /* ################################################################### */
@@ -233,7 +243,14 @@ public class DesireGetControllers {
                 }
             }
 
-            return desires.subList(perPage * (page - 1), Math.min(desires.size(), perPage * page));
+            ArrayList<DesireListRsp> partitionedDesires = new ArrayList<DesireListRsp>(desires
+                    .subList(perPage * (page - 1), Math.min(desires.size(), perPage * page)));
+
+            DesireListComplete result = new DesireListComplete.DesireListBuilder().build(partitionedDesires.size(),
+                    perPage, page,
+                    partitionedDesires);
+
+            return result;
 
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
