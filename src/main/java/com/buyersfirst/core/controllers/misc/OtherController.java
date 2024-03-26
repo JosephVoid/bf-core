@@ -1,10 +1,12 @@
 package com.buyersfirst.core.controllers.misc;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -14,6 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.buyersfirst.core.models.NotifyTags;
 import com.buyersfirst.core.models.NotifyTagsRepository;
+import com.buyersfirst.core.models.Tags;
+import com.buyersfirst.core.models.TagsRepository;
 import com.buyersfirst.core.models.Users;
 import com.buyersfirst.core.models.UsersRepository;
 import com.buyersfirst.core.models.Views;
@@ -32,6 +36,8 @@ public class OtherController {
     NotifyTagsRepository notifyTagsRepository;
     @Autowired
     UsersRepository usersRepository;
+    @Autowired
+    TagsRepository tagsRepository;
 
     @PostMapping(path = "/view/{type}/{itemId}")
     void viewItem(@RequestHeader("Authorization") String auth, @PathVariable String type,
@@ -83,6 +89,15 @@ public class OtherController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Auth Header Issue");
         } catch (ResponseStatusException e) {
             throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    @GetMapping(path = "/tags")
+    List<Tags> getTags() {
+        try {
+            return (List<Tags>) tagsRepository.findAll();
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         }
