@@ -26,4 +26,7 @@ public interface UserWantsRepository extends CrudRepository<UserWants, UUID> {
     @Transactional
     @Query("DELETE FROM UserWants WHERE UserId = ?2 AND DesireId = ?1")
     void removeUserWants(String desireId, String userId);
+
+    @Query("SELECT uw.DesireId FROM UserWants uw WHERE uw.UserId = ?1")
+    List<String> findWantsByUser(String userId);
 }

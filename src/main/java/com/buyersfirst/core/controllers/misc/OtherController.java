@@ -12,14 +12,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.buyersfirst.core.dto.SetAlert;
+import com.buyersfirst.core.models.AcceptedBidsRepository;
 import com.buyersfirst.core.models.NotifyTags;
 import com.buyersfirst.core.models.NotifyTagsRepository;
 import com.buyersfirst.core.models.Tags;
 import com.buyersfirst.core.models.TagsRepository;
+import com.buyersfirst.core.models.UserWantsRepository;
 import com.buyersfirst.core.models.Users;
 import com.buyersfirst.core.models.UsersRepository;
 import com.buyersfirst.core.models.Views;
@@ -40,6 +43,10 @@ public class OtherController {
     UsersRepository usersRepository;
     @Autowired
     TagsRepository tagsRepository;
+    @Autowired
+    AcceptedBidsRepository acceptedBidsRepository;
+    @Autowired
+    UserWantsRepository userWantsRepository;
 
     @PostMapping(path = "/view/{type}/{itemId}")
     void viewItem(@RequestHeader("Authorization") String auth, @PathVariable String type,
@@ -97,6 +104,22 @@ public class OtherController {
             return (List<Tags>) tagsRepository.findAll();
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    @GetMapping(path = "/activity/{id}")
+    List<String> getUserActivity(@RequestParam String type, @PathVariable String id) {
+        switch (type) {
+            case "wanted":
+                return userWantsRepository.findWantsByUser(id);
+            case "accepted":
+                return acceptedBidsRepository.findAcceptedBidByUser(id);
+            case "viewed-desire":
+                return viewsRepository.findDesireViewsByUser(id);
+            case "viewed-bid":
+                return viewsRepository.findBidViewsByUser(id);
+            default:
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Type");
         }
     }
 }

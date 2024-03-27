@@ -9,4 +9,7 @@ import org.springframework.data.repository.CrudRepository;
 public interface AcceptedBidsRepository extends CrudRepository<AcceptedBids, UUID> {
     @Query("SELECT ab FROM AcceptedBids ab WHERE ab.BidId = ?1 AND ab.UserId = ?2")
     List<AcceptedBids> findByBidIdAndUserId(String BidId, String userId);
+
+    @Query("SELECT ab.BidId FROM AcceptedBids ab WHERE ab.UserId = ?1")
+    List<String> findAcceptedBidByUser(String userId);
 }
