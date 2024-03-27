@@ -178,4 +178,50 @@ public interface DesiresRepository extends CrudRepository<Desires, UUID> {
                     WHERE desires.id = :id
             """, nativeQuery = true)
     void updateDesire(String id, String title, String desc, Double price, String pic);
+
+    /**
+     * @param searchString Valid desire names
+     * @param sortBy       created, wants, desired_price
+     * @param sortDir      ASC or DESC
+     * @return List<Object>
+     */
+    @Query(value = """
+            SELECT
+                desires.id,
+                users.first_name,
+                users.last_name,
+                desires.title,
+                desires.description,
+                desires.desired_price,
+                desires.picture,
+                desires.created,
+                desires.is_closed,
+                tags.name AS tag_name,
+                COALESCE(bids_count, 0) AS bids,
+                COALESCE(wants_count, 0) AS wants,
+                COALESCE(views_count, 0) AS views
+            FROM desires
+            LEFT JOIN users ON users.id = desires.owner_id
+            LEFT JOIN (
+                SELECT desire_id, COUNT(id) AS bids_count
+                FROM bids
+                GROUP BY desire_id
+            ) AS bid_counts ON bid_counts.desire_id = desires.id
+            LEFT JOIN (
+                SELECT desire_id, COUNT(id) AS wants_count
+                FROM user_wants
+                GROUP BY desire_id
+            ) AS want_counts ON want_counts.desire_id = desires.id
+            LEFT JOIN (
+                SELECT desire_id, COUNT(id) AS views_count
+                FROM views
+                GROUP BY desire_id
+            ) AS view_counts ON view_counts.desire_id = desires.id
+            RIGHT JOIN desire_tags ON desire_tags.desire_id = desires.id
+            LEFT JOIN tags ON tags.id = desire_tags.tag_id
+            WHERE desires.owner_id=:userId
+            GROUP BY desires.id, users.first_name, users.last_name, desires.title, desires.description, desires.desired_price, desires.picture, desires.created, desires.is_closed, tags.name, bids_count, wants_count, views_count
+            ORDER BY created DESC
+            """, nativeQuery = true)
+    String[][] desiresByUser(String userId);
 }
