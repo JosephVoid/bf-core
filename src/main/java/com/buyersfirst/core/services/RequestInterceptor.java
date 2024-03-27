@@ -24,6 +24,11 @@ public class RequestInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object object) throws Exception {
         try {
+            // Allow documentation page
+            if (request.getRequestURI().startsWith("/swagger-ui/")
+                    || request.getRequestURI().contains("/v3/api-docs"))
+                return true;
+
             String token = request.getHeader("Authorization");
 
             if (token == null) {
