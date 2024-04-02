@@ -28,6 +28,9 @@ public class RequestInterceptor implements HandlerInterceptor {
             if (request.getRequestURI().startsWith("/swagger-ui/")
                     || request.getRequestURI().contains("/v3/api-docs"))
                 return true;
+            // Allow preflight requests
+            if (request.getMethod().equals("OPTIONS"))
+                return true;
 
             String token = request.getHeader("Authorization");
 
