@@ -23,6 +23,7 @@ import com.buyersfirst.core.models.Bids;
 import com.buyersfirst.core.models.BidsRepository;
 import com.buyersfirst.core.models.DesiresRepository;
 import com.buyersfirst.core.services.RedisCacheService;
+import com.buyersfirst.core.services.SortService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
@@ -35,6 +36,8 @@ public class DesireGetControllers {
     BidsRepository bidsRepository;
     @Autowired
     RedisCacheService redisCacheService;
+    @Autowired
+    SortService sortService;
 
     @GetMapping(path = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody DesireListComplete listDesires(
@@ -59,6 +62,9 @@ public class DesireGetControllers {
             if (redisCacheService.jedis.exists("all-desires")) {
                 String cachedString = redisCacheService.jedis.get("all-desires");
                 List<DesireListRsp> cachedDesires = mapper.readValue(cachedString, DesireCache.class).allDesires;
+
+                cachedDesires = sortService.sort(cachedDesires, sortDir, sortBy);
+
                 ArrayList<DesireListRsp> partitionedDesires = new ArrayList<DesireListRsp>(cachedDesires
                         .subList(perPage * (page - 1), Math.min(cachedDesires.size(), perPage * page)));
                 DesireListComplete result = new DesireListComplete.DesireListBuilder().build(partitionedDesires.size(),

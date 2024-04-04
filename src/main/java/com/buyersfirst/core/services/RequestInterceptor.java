@@ -36,7 +36,6 @@ public class RequestInterceptor implements HandlerInterceptor {
             if (request.getMethod().equals("OPTIONS"))
                 return true;
             // // None JWT endpoint allow
-            System.out.println(request.getRequestURI());
             if (allowedRoutes.contains(request.getRequestURI()))
                 return true;
 
