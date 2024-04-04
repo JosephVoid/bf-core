@@ -1,9 +1,11 @@
 package com.buyersfirst.core.services;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.jose4j.jwt.JwtClaims;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -20,6 +22,8 @@ public class RequestInterceptor implements HandlerInterceptor {
     JWTBuilder jwtBuilder;
     @Autowired
     UsersRepository usersRepository;
+    @Value("#{${allowed.routes}}")
+    private List<String> allowedRoutes;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object object) throws Exception {
@@ -30,6 +34,10 @@ public class RequestInterceptor implements HandlerInterceptor {
                 return true;
             // Allow preflight requests
             if (request.getMethod().equals("OPTIONS"))
+                return true;
+            // // None JWT endpoint allow
+            System.out.println(request.getRequestURI());
+            if (allowedRoutes.contains(request.getRequestURI()))
                 return true;
 
             String token = request.getHeader("Authorization");
