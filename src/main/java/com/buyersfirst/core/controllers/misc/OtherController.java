@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.buyersfirst.core.dto.SetAlert;
 import com.buyersfirst.core.models.AcceptedBidsRepository;
+import com.buyersfirst.core.models.BidsRepository;
 import com.buyersfirst.core.models.NotifyTags;
 import com.buyersfirst.core.models.NotifyTagsRepository;
 import com.buyersfirst.core.models.Tags;
@@ -47,6 +48,8 @@ public class OtherController {
     AcceptedBidsRepository acceptedBidsRepository;
     @Autowired
     UserWantsRepository userWantsRepository;
+    @Autowired
+    BidsRepository bidsRepository;
 
     @PostMapping(path = "/view/{type}/{itemId}")
     void viewItem(@RequestHeader("Authorization") String auth, @PathVariable String type,
@@ -98,6 +101,21 @@ public class OtherController {
         }
     }
 
+    @GetMapping(path = "/user-tags/{userId}")
+    List<Tags> getUserTags(@PathVariable String userId) {
+        try {
+            List<Tags> tags = new ArrayList<Tags>();
+            List<NotifyTags> nTags = notifyTagsRepository.findByUser(userId);
+            nTags.forEach((nt) -> {
+                Tags tg = tagsRepository.findById(UUID.fromString(nt.getTagId())).get();
+                tags.add(tg);
+            });
+            return tags;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
+
     @GetMapping(path = "/tags")
     List<Tags> getTags() {
         try {
@@ -112,6 +130,8 @@ public class OtherController {
         switch (type) {
             case "wanted":
                 return userWantsRepository.findWantsByUser(id);
+            case "offered":
+                return bidsRepository.findBidForIdByUserId(id);
             case "accepted":
                 return acceptedBidsRepository.findAcceptedBidByUser(id);
             case "viewed-desire":

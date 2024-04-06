@@ -22,6 +22,9 @@ public interface NotifyTagsRepository extends CrudRepository<NotifyTags, UUID> {
     @Query("SELECT nt FROM NotifyTags nt where nt.tagId = :tagId AND nt.userId = :userId")
     List<NotifyTags> findByTagAndUser(String userId, String tagId);
 
+    @Query("SELECT nt FROM NotifyTags nt where nt.userId = :userId")
+    List<NotifyTags> findByUser(String userId);
+
     @Modifying(clearAutomatically = true)
     @Transactional
     @Query(value = "DELETE FROM notify_tags_user WHERE user_id = :userId", nativeQuery = true)
