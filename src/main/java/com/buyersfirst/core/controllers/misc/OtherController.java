@@ -19,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.buyersfirst.core.dto.SetAlert;
 import com.buyersfirst.core.models.AcceptedBidsRepository;
 import com.buyersfirst.core.models.BidsRepository;
+import com.buyersfirst.core.models.DesiresRepository;
 import com.buyersfirst.core.models.NotifyTags;
 import com.buyersfirst.core.models.NotifyTagsRepository;
 import com.buyersfirst.core.models.Tags;
@@ -50,6 +51,8 @@ public class OtherController {
     UserWantsRepository userWantsRepository;
     @Autowired
     BidsRepository bidsRepository;
+    @Autowired
+    DesiresRepository desiresRepository;
 
     @PostMapping(path = "/view/{type}/{itemId}")
     void viewItem(@RequestHeader("Authorization") String auth, @PathVariable String type,
@@ -58,12 +61,14 @@ public class OtherController {
             String userId = tokenParser.getUserId(auth);
             if (!type.equals("desire") && !type.equals("bid"))
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Input");
-            viewsRepository.save(
-                    new Views(
-                            userId,
-                            type.equals("desire") ? itemId : null,
-                            type.equals("bid") ? itemId : null,
-                            new Timestamp(System.currentTimeMillis())));
+            if (viewsRepository.findViewsByUserDesire(userId, itemId).isEmpty()) {
+                viewsRepository.save(
+                        new Views(
+                                userId,
+                                type.equals("desire") ? itemId : null,
+                                type.equals("bid") ? itemId : null,
+                                new Timestamp(System.currentTimeMillis())));
+            }
 
         } catch (AuthException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Auth Header Issue");
@@ -134,6 +139,8 @@ public class OtherController {
                 return bidsRepository.findBidForIdByUserId(id);
             case "accepted":
                 return acceptedBidsRepository.findAcceptedBidByUser(id);
+            case "posted-desire":
+                return desiresRepository.findDesiresCreatedByUserId(id);
             case "viewed-desire":
                 return viewsRepository.findDesireViewsByUser(id);
             case "viewed-bid":

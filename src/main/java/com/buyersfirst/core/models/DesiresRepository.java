@@ -15,6 +15,9 @@ public interface DesiresRepository extends CrudRepository<Desires, UUID> {
     @Query("UPDATE Desires SET IsClosed = ?2 where id = ?1")
     void UpdateIsClosedStatus(String id, Integer status);
 
+    @Query("SELECT d.id FROM Desires d where d.OwnerId = ?1")
+    List<String> findDesiresCreatedByUserId(String id);
+
     /**
      * @param filterBy Valid tag names
      * @param sortBy   created, wants, desired_price

@@ -45,6 +45,9 @@ public class Views {
     @Column(name = "viewed_on")
     private Timestamp ViewedOn;
 
+    public Views() {
+    }
+
     public Views(String userId, String desireId, String bidId, Timestamp viewedOn) {
         UserId = userId;
         DesireId = desireId;

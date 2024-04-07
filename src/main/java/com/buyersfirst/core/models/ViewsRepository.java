@@ -12,4 +12,7 @@ public interface ViewsRepository extends CrudRepository<Views, UUID> {
 
     @Query("SELECT vw.BidId FROM Views vw WHERE vw.UserId = ?1 AND vw.BidId IS NOT NULL")
     List<String> findBidViewsByUser(String userId);
+
+    @Query("SELECT vw FROM Views vw WHERE vw.UserId = ?1 AND vw.DesireId = ?2")
+    List<Views> findViewsByUserDesire(String userId, String desireId);
 }
