@@ -63,10 +63,13 @@ public class BidGetController {
                     Double.parseDouble(dbResponse[0][4]),
                     dbResponse[0][3],
                     dbResponse[0][5],
-                    dbResponse[0][8] + " " + dbResponse[0][9],
+                    dbResponse[0][9] + " " + dbResponse[0][10],
+                    dbResponse[0][15], //
+                    dbResponse[0][11],
+                    dbResponse[0][14],
+                    dbResponse[0][13],
                     Timestamp.valueOf(dbResponse[0][6]),
                     Boolean.parseBoolean(dbResponse[0][7]));
-
             return bid;
 
         } catch (Exception e) {

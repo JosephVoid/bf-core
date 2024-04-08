@@ -7,5 +7,6 @@ public class UserModify {
     public String description;
     public String phone;
     public String picture;
-    public String password;
+    public String old_password;
+    public String new_password;
 }

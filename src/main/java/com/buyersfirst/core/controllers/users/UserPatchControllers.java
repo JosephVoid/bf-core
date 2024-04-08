@@ -36,13 +36,18 @@ public class UserPatchControllers {
             String userId = tokenParser.getUserId(auth);
 
             BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(10);
+
+            if ((body.old_password != null || body.new_password != null) && !bCryptPasswordEncoder
+                    .matches(body.old_password, usersRepository.findById(UUID.fromString(userId)).get().getPassword()))
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Old password not correct");
+
             /* Update the user */
             usersRepository.updateUsers(
                     userId,
                     body.first_name,
                     body.last_name,
                     body.email,
-                    body.password == null ? null : bCryptPasswordEncoder.encode(body.password),
+                    body.new_password == null ? null : bCryptPasswordEncoder.encode(body.new_password),
                     body.description,
                     body.phone,
                     body.picture);

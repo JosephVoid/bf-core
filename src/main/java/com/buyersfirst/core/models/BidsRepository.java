@@ -31,7 +31,7 @@ public interface BidsRepository extends CrudRepository<Bids, UUID> {
     String[][] findBidsByUser(String id);
 
     @Query(value = """
-                SELECT bids.*, users.first_name, users.last_name FROM bids
+                SELECT bids.*, users.* FROM bids
                 JOIN users ON users.id = bids.owner_id WHERE bids.id = :id
             """, nativeQuery = true)
     String[][] findABidJoined(String id);
