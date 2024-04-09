@@ -52,10 +52,10 @@ public class DesireGetControllers {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sort dir param invalid");
         if (page < 1 || perPage < 1)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pagination invalid");
+
+        ObjectMapper mapper = new ObjectMapper();
+
         try {
-
-            ObjectMapper mapper = new ObjectMapper();
-
             /* ################################################################### */
             /* ---------------------RESPONDING WITH CACHE------------------------- */
 
@@ -74,6 +74,12 @@ public class DesireGetControllers {
             }
 
             /* ################################################################### */
+        } catch (Exception e) {
+            System.out.println(e);
+            System.out.println("Redis Error handled");
+        }
+
+        try {
 
             /* From DB */
             String[][] dbResponse = desiresRepository.findAllDesiresJoined(filterBy, sortBy + ":" + sortDir);
@@ -116,7 +122,7 @@ public class DesireGetControllers {
             /* ---------------------CACHING THE RESPONSE-------------------------- */
 
             DesireCache desireCache = new DesireCache(desires);
-            redisCacheService.jedis.setex("all-desires", 3600, mapper.writeValueAsString(desireCache));
+            redisCacheService.jedis.setex("all-desires", 300, mapper.writeValueAsString(desireCache));
 
             /* ################################################################### */
             ArrayList<DesireListRsp> partitionedDesires = new ArrayList<DesireListRsp>(desires
@@ -184,16 +190,17 @@ public class DesireGetControllers {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Sort dir param invalid");
         if (page < 1 || perPage < 1)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pagination invalid");
+
+        ObjectMapper mapper = new ObjectMapper();
+
         try {
-
-            ObjectMapper mapper = new ObjectMapper();
-
             /* ################################################################### */
             /* ------------ SEARCHING AND RESPONDING WITH CACHE ------------------ */
 
             if (redisCacheService.jedis.exists("all-desires")) {
                 String cachedString = redisCacheService.jedis.get("all-desires");
-                List<DesireListRsp> cachedDesires = mapper.readValue(cachedString, DesireCache.class).allDesires;
+                List<DesireListRsp> cachedDesires = mapper.readValue(cachedString,
+                        DesireCache.class).allDesires;
                 List<DesireListRsp> searchedDesires = new ArrayList<DesireListRsp>();
                 cachedDesires.forEach((desire) -> {
                     if (desire.title.toLowerCase().replaceAll("\\s", "")
@@ -201,7 +208,8 @@ public class DesireGetControllers {
                         searchedDesires.add(desire);
                 });
                 ArrayList<DesireListRsp> partitionedDesires = new ArrayList<DesireListRsp>(searchedDesires
-                        .subList(perPage * (page - 1), Math.min(cachedDesires.size(), perPage * page)));
+                        .subList(perPage * (page - 1), Math.min(searchedDesires.size(), perPage *
+                                page)));
 
                 DesireListComplete result = new DesireListComplete.DesireListBuilder().build(partitionedDesires.size(),
                         perPage, page,
@@ -211,6 +219,13 @@ public class DesireGetControllers {
             }
 
             /* ################################################################### */
+        } catch (Exception e) {
+            // TODO: handle exception
+            System.out.println(e);
+            System.out.println("Redis Exception handled");
+        }
+
+        try {
 
             /* From DB */
             String[][] dbResponse = desiresRepository.searchDesiresJoined(searchString, sortBy + ":" + sortDir);
@@ -259,6 +274,7 @@ public class DesireGetControllers {
             return result;
 
         } catch (Exception e) {
+            System.out.println(e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         }
     }
