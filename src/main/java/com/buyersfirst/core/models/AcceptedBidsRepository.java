@@ -12,4 +12,12 @@ public interface AcceptedBidsRepository extends CrudRepository<AcceptedBids, UUI
 
     @Query("SELECT ab.BidId FROM AcceptedBids ab WHERE ab.UserId = ?1")
     List<String> findAcceptedBidByUser(String userId);
+
+    @Query(value = """
+                SELECT COUNT(*) FROM accepted_bids
+                JOIN bids ON bids.id = accepted_bids.bid_id
+                JOIN desires ON bids.desire_id = desires.id
+                WHERE desires.owner_id = ?1 AND desires.id = ?2
+            """, nativeQuery = true)
+    String countAcceptedOffersOnDesireByUser(String userId, String desireId);
 }

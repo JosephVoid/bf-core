@@ -76,7 +76,7 @@ public class DesireGetControllers {
             /* ################################################################### */
         } catch (Exception e) {
             System.out.println(e);
-            System.out.println("Redis Error handled");
+            System.out.println("Redis Error handled, Using DB instead");
         }
 
         try {
@@ -118,13 +118,20 @@ public class DesireGetControllers {
                 }
             }
 
-            /* ################################################################### */
-            /* ---------------------CACHING THE RESPONSE-------------------------- */
+            try {
+                /* ################################################################### */
+                /* ---------------------CACHING THE RESPONSE-------------------------- */
 
-            DesireCache desireCache = new DesireCache(desires);
-            redisCacheService.jedis.setex("all-desires", 300, mapper.writeValueAsString(desireCache));
+                DesireCache desireCache = new DesireCache(desires);
+                redisCacheService.jedis.setex("all-desires", 300, mapper.writeValueAsString(desireCache));
 
-            /* ################################################################### */
+                /* ################################################################### */
+
+            } catch (Exception e) {
+                System.out.println(e);
+                System.out.println("Redis Error handled, Using DB instead");
+            }
+
             ArrayList<DesireListRsp> partitionedDesires = new ArrayList<DesireListRsp>(desires
                     .subList(perPage * (page - 1), Math.min(desires.size(), perPage * page)));
             DesireListComplete result = new DesireListComplete.DesireListBuilder().build(partitionedDesires.size(),
@@ -222,7 +229,7 @@ public class DesireGetControllers {
         } catch (Exception e) {
             // TODO: handle exception
             System.out.println(e);
-            System.out.println("Redis Exception handled");
+            System.out.println("Redis Exception handled, Using DB instead");
         }
 
         try {

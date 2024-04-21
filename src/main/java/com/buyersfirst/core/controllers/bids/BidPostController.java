@@ -62,13 +62,22 @@ public class BidPostController {
             /* Check if the desire is not closed */
             if (desire.get().getIsClosed() == 1)
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire is closed");
+            /* Can't Bid More than once */
+            bidsRepository.findByDesireId(desireId).forEach((bidItem) -> {
+                if (bidItem.getOwnerId().equals(userId))
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't Bid more than once");
+            });
 
             Bids bid = new Bids(desireId, userId, body.description, body.price, body.picture,
                     new Timestamp(System.currentTimeMillis()), 0);
 
             bidsRepository.save(bid);
+            /* Don't Alert Owner if the owner has already accepted a bid */
+            if (Integer.parseInt(
+                    acceptedBidsRepository.countAcceptedOffersOnDesireByUser(desire.get().getOwnerId(), desireId)) <= 0)
+                alertUsers.alertDesireOwnerForbid(desire.get().getOwnerId(), desire.get().getTitle(),
+                        bid.getBidPrice());
 
-            alertUsers.alertDesireOwnerForbid(desire.get().getOwnerId(), desire.get().getTitle(), bid.getBidPrice());
             alertUsers.alertUsersWhoWantedTheDesire(desireId, desire.get().getTitle(), bid.getBidPrice());
             return bid;
 
@@ -101,9 +110,10 @@ public class BidPostController {
             acceptedBidsRepository.save(new AcceptedBids(userId, bidId, new Timestamp(System.currentTimeMillis())));
 
             /* If the bid is accepted by the desire owner, close the desire */
-            Desires desire = desiresRepository.findById(UUID.fromString(bid.get().getDesireId())).get();
-            if (desire.getOwnerId() == userId)
-                desiresRepository.UpdateIsClosedStatus(desire.getId().toString(), 1);
+            // Desires desire =
+            // desiresRepository.findById(UUID.fromString(bid.get().getDesireId())).get();
+            // if (desire.getOwnerId() == userId)
+            // desiresRepository.UpdateIsClosedStatus(desire.getId().toString(), 1);
 
             alertUsers.alertOnBidAccept(bid.get().getOwnerId(), bid.get().getDesireId());
 
