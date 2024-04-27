@@ -30,8 +30,8 @@ public class AlertUsers {
 
     public boolean alertForTags(String desireName, String tagIds[]) {
         try {
-            String templateString = "Someone wants \"" + truncateStr(desireName)
-                    + "\", Go to Buyer's First to check it out. ";
+            String templateString = "Someone wants '" + truncateStr(desireName)
+                    + "'', Go to Buyer's First to check it out. ";
             String[][] userTagList = notifyTagsRepository.findContactByTag(tagIds);
             ArrayList<Alert> alertList = transformAlerts(userTagList);
             for (int i = 0; i < alertList.size(); i++) {
@@ -48,9 +48,9 @@ public class AlertUsers {
     }
 
     public boolean alertDesireOwnerForbid(String desireOwner, String desireTitle, Double price) {
-        String templateString = "Someone just bid Br " + String.valueOf(price) + " for your desire \""
+        String templateString = "Someone just bid Br " + String.valueOf(price) + " for your desire '"
                 + truncateStr(desireTitle)
-                + "\", Go to Buyer's First to check it out. ";
+                + "', Go to Buyer's First to check it out. ";
         String userPhone = usersRepository.findById(UUID.fromString(desireOwner)).get().getPhone();
         System.out.println(userPhone + " : " + templateString);
         if (!notificationService.sendSMS(userPhone, templateString))
@@ -59,9 +59,9 @@ public class AlertUsers {
     }
 
     public boolean alertUsersWhoWantedTheDesire(String desireId, String desireTitle, Double price) {
-        String templateString = "Someone just bid Br " + String.valueOf(price) + " for \""
+        String templateString = "Someone just bid Br " + String.valueOf(price) + " for '"
                 + truncateStr(desireTitle)
-                + "\", which you also wanted, Go to Buyer's First to check it out. ";
+                + "'', which you also wanted, Go to Buyer's First to check it out. ";
         List<Users> users = usersRepository.findUserWhoWantDesires(desireId);
         users.forEach((user) -> {
             System.out.println(user.getPhone() + " : " + templateString);
@@ -74,8 +74,8 @@ public class AlertUsers {
         Desires desire = desiresRepository.findById(UUID.fromString(desireId)).get();
         Users desireOwner = usersRepository.findById(UUID.fromString(desire.getOwnerId())).get();
         Users bidOwner = usersRepository.findById(UUID.fromString(bidOwnerId)).get();
-        String templateString = "Your bid for \"" + truncateStr(desire.getTitle())
-                + "\" has been accepted. Contact "
+        String templateString = "Your bid for '" + truncateStr(desire.getTitle())
+                + "'' has been accepted. Contact "
                 + desireOwner.getFirst_name()
                 + " at " + desireOwner.getPhone();
         System.out.println(bidOwner.getPhone() + " : " + templateString);
