@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.buyersfirst.core.dto.Alert;
@@ -27,11 +28,13 @@ public class AlertUsers {
     DesiresRepository desiresRepository;
     @Autowired
     UserWantsRepository userWantsRepository;
+    @Value("${domain.host}")
+    private String domain;
 
-    public boolean alertForTags(String desireName, String tagIds[]) {
+    public boolean alertForTags(String desireId, String desireName, String tagIds[]) {
         try {
             String templateString = "Someone wants '" + truncateStr(desireName)
-                    + "'', Go to Buyer's First to check it out. ";
+                    + "'', Go to " + domain + "/" + desireId + " to check it out. ";
             String[][] userTagList = notifyTagsRepository.findContactByTag(tagIds);
             ArrayList<Alert> alertList = transformAlerts(userTagList);
             for (int i = 0; i < alertList.size(); i++) {
@@ -47,10 +50,10 @@ public class AlertUsers {
         }
     }
 
-    public boolean alertDesireOwnerForbid(String desireOwner, String desireTitle, Double price) {
+    public boolean alertDesireOwnerForbid(String desireId, String desireOwner, String desireTitle, Double price) {
         String templateString = "Someone just bid Br " + String.valueOf(price) + " for your desire '"
                 + truncateStr(desireTitle)
-                + "', Go to Buyer's First to check it out. ";
+                + "', Go to " + domain + "/" + desireId + " to check it out. ";
         String userPhone = usersRepository.findById(UUID.fromString(desireOwner)).get().getPhone();
         System.out.println(userPhone + " : " + templateString);
         if (!notificationService.sendSMS(userPhone, templateString))
@@ -61,7 +64,7 @@ public class AlertUsers {
     public boolean alertUsersWhoWantedTheDesire(String desireId, String desireTitle, Double price) {
         String templateString = "Someone just bid Br " + String.valueOf(price) + " for '"
                 + truncateStr(desireTitle)
-                + "'', which you also wanted, Go to Buyer's First to check it out. ";
+                + "'', which you also wanted, Go to " + domain + "/" + desireId + " to check it out. ";
         List<Users> users = usersRepository.findUserWhoWantDesires(desireId);
         users.forEach((user) -> {
             System.out.println(user.getPhone() + " : " + templateString);

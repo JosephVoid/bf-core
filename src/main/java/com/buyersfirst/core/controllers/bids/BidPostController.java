@@ -75,7 +75,7 @@ public class BidPostController {
             /* Don't Alert Owner if the owner has already accepted a bid */
             if (Integer.parseInt(
                     acceptedBidsRepository.countAcceptedOffersOnDesireByUser(desire.get().getOwnerId(), desireId)) <= 0)
-                alertUsers.alertDesireOwnerForbid(desire.get().getOwnerId(), desire.get().getTitle(),
+                alertUsers.alertDesireOwnerForbid(desireId, desire.get().getOwnerId(), desire.get().getTitle(),
                         bid.getBidPrice());
 
             alertUsers.alertUsersWhoWantedTheDesire(desireId, desire.get().getTitle(), bid.getBidPrice());

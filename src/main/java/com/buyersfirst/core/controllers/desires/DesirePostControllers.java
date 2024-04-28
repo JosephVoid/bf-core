@@ -73,7 +73,7 @@ public class DesirePostControllers {
             }
             desireTagsRepository.saveAll(desireTags);
 
-            alertUsers.alertForTags(savedDesire.getTitle(), request.tags_id);
+            alertUsers.alertForTags(savedDesire.getId().toString(), savedDesire.getTitle(), request.tags_id);
             return savedDesire;
 
         } catch (Exception e) {
