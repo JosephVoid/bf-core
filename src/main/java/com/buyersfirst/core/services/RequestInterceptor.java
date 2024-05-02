@@ -22,8 +22,6 @@ public class RequestInterceptor implements HandlerInterceptor {
     JWTBuilder jwtBuilder;
     @Autowired
     UsersRepository usersRepository;
-    @Value("#{${allowed.routes}}")
-    private List<String> allowedRoutes;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object object) throws Exception {

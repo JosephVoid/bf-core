@@ -51,7 +51,8 @@ public class AlertUsers {
     }
 
     public boolean alertDesireOwnerForbid(String desireId, String desireOwner, String desireTitle, Double price) {
-        String templateString = String.format("Someone just bid Br %s for your desire '%s' Go to %s/%s to check it out",
+        String templateString = String.format(
+                "Someone just offered an item for Br %s for your desire '%s' Go to %s/%s to check it out",
                 String.valueOf(price), truncateStr(desireTitle), domain, desireId);
         String userPhone = usersRepository.findById(UUID.fromString(desireOwner)).get().getPhone();
         System.out.println(userPhone + " : " + templateString);
@@ -62,7 +63,7 @@ public class AlertUsers {
 
     public boolean alertUsersWhoWantedTheDesire(String desireId, String desireTitle, Double price) {
         String templateString = String.format(
-                "Someone just bid Br %s for '%s', which you also wanted, Go to %s/%s to check it out",
+                "Someone just offered an item for Br %s for '%s', which you also wanted, Go to %s/%s to check it out",
                 String.valueOf(price), truncateStr(desireTitle), domain, desireId);
         List<Users> users = usersRepository.findUserWhoWantDesires(desireId);
         users.forEach((user) -> {
@@ -77,7 +78,7 @@ public class AlertUsers {
         Users desireOwner = usersRepository.findById(UUID.fromString(desire.getOwnerId())).get();
         Users bidOwner = usersRepository.findById(UUID.fromString(bidOwnerId)).get();
         String templateString = String.format(
-                "Your bid for '%s', has been accepted. Contact %s [%s]",
+                "Your offer for '%s', has been accepted. Contact %s [%s]",
                 truncateStr(desire.getTitle()), desireOwner.getFirst_name(), desireOwner.getPhone());
         System.out.println(bidOwner.getPhone() + " : " + templateString);
         if (!notificationService.sendSMS(bidOwner.getPhone(), templateString))

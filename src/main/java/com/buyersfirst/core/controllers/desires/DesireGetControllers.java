@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import com.buyersfirst.core.dto.DesireCache;
 import com.buyersfirst.core.dto.DesireListComplete;
 import com.buyersfirst.core.dto.DesireListRsp;
 import com.buyersfirst.core.dto.SingleDesire;
@@ -24,7 +22,6 @@ import com.buyersfirst.core.models.BidsRepository;
 import com.buyersfirst.core.models.DesiresRepository;
 import com.buyersfirst.core.services.RedisCacheService;
 import com.buyersfirst.core.services.SortService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping(path = "/desires", method = RequestMethod.GET)
@@ -53,27 +50,31 @@ public class DesireGetControllers {
         if (page < 1 || perPage < 1)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pagination invalid");
 
-        ObjectMapper mapper = new ObjectMapper();
+        // ObjectMapper mapper = new ObjectMapper();
 
         try {
-            /* ################################################################### */
-            /* ---------------------RESPONDING WITH CACHE------------------------- */
+            // /* ################################################################### */
+            // /* ---------------------RESPONDING WITH CACHE------------------------- */
 
-            if (redisCacheService.jedis.exists("all-desires")) {
-                String cachedString = redisCacheService.jedis.get("all-desires");
-                List<DesireListRsp> cachedDesires = mapper.readValue(cachedString, DesireCache.class).allDesires;
+            // if (redisCacheService.jedis.exists("all-desires")) {
+            // String cachedString = redisCacheService.jedis.get("all-desires");
+            // List<DesireListRsp> cachedDesires = mapper.readValue(cachedString,
+            // DesireCache.class).allDesires;
 
-                cachedDesires = sortService.sort(cachedDesires, sortDir, sortBy);
+            // cachedDesires = sortService.sort(cachedDesires, sortDir, sortBy);
 
-                ArrayList<DesireListRsp> partitionedDesires = new ArrayList<DesireListRsp>(cachedDesires
-                        .subList(perPage * (page - 1), Math.min(cachedDesires.size(), perPage * page)));
-                DesireListComplete result = new DesireListComplete.DesireListBuilder().build(partitionedDesires.size(),
-                        perPage, page,
-                        partitionedDesires);
-                return result;
-            }
+            // ArrayList<DesireListRsp> partitionedDesires = new
+            // ArrayList<DesireListRsp>(cachedDesires
+            // .subList(perPage * (page - 1), Math.min(cachedDesires.size(), perPage *
+            // page)));
+            // DesireListComplete result = new
+            // DesireListComplete.DesireListBuilder().build(partitionedDesires.size(),
+            // perPage, page,
+            // partitionedDesires);
+            // return result;
+            // }
 
-            /* ################################################################### */
+            // /* ################################################################### */
         } catch (Exception e) {
             System.out.println(e);
             System.out.println("Redis Error handled, Using DB instead");
@@ -119,13 +120,14 @@ public class DesireGetControllers {
             }
 
             try {
-                /* ################################################################### */
-                /* ---------------------CACHING THE RESPONSE-------------------------- */
+                // /* ################################################################### */
+                // /* ---------------------CACHING THE RESPONSE-------------------------- */
 
-                DesireCache desireCache = new DesireCache(desires);
-                redisCacheService.jedis.setex("all-desires", 300, mapper.writeValueAsString(desireCache));
+                // DesireCache desireCache = new DesireCache(desires);
+                // redisCacheService.jedis.setex("all-desires", 300,
+                // mapper.writeValueAsString(desireCache));
 
-                /* ################################################################### */
+                // /* ################################################################### */
 
             } catch (Exception e) {
                 System.out.println(e);
@@ -198,39 +200,39 @@ public class DesireGetControllers {
         if (page < 1 || perPage < 1)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pagination invalid");
 
-        ObjectMapper mapper = new ObjectMapper();
+        // try {
+        // /* ################################################################### */
+        // /* ------------ SEARCHING AND RESPONDING WITH CACHE ------------------ */
 
-        try {
-            /* ################################################################### */
-            /* ------------ SEARCHING AND RESPONDING WITH CACHE ------------------ */
+        // if (redisCacheService.jedis.exists("all-desires")) {
+        // String cachedString = redisCacheService.jedis.get("all-desires");
+        // List<DesireListRsp> cachedDesires = mapper.readValue(cachedString,
+        // DesireCache.class).allDesires;
+        // List<DesireListRsp> searchedDesires = new ArrayList<DesireListRsp>();
+        // cachedDesires.forEach((desire) -> {
+        // if (desire.title.toLowerCase().replaceAll("\\s", "")
+        // .contains(searchString.toLowerCase().replaceAll("\\s", "")))
+        // searchedDesires.add(desire);
+        // });
+        // ArrayList<DesireListRsp> partitionedDesires = new
+        // ArrayList<DesireListRsp>(searchedDesires
+        // .subList(perPage * (page - 1), Math.min(searchedDesires.size(), perPage *
+        // page)));
 
-            if (redisCacheService.jedis.exists("all-desires")) {
-                String cachedString = redisCacheService.jedis.get("all-desires");
-                List<DesireListRsp> cachedDesires = mapper.readValue(cachedString,
-                        DesireCache.class).allDesires;
-                List<DesireListRsp> searchedDesires = new ArrayList<DesireListRsp>();
-                cachedDesires.forEach((desire) -> {
-                    if (desire.title.toLowerCase().replaceAll("\\s", "")
-                            .contains(searchString.toLowerCase().replaceAll("\\s", "")))
-                        searchedDesires.add(desire);
-                });
-                ArrayList<DesireListRsp> partitionedDesires = new ArrayList<DesireListRsp>(searchedDesires
-                        .subList(perPage * (page - 1), Math.min(searchedDesires.size(), perPage *
-                                page)));
+        // DesireListComplete result = new
+        // DesireListComplete.DesireListBuilder().build(partitionedDesires.size(),
+        // perPage, page,
+        // partitionedDesires);
 
-                DesireListComplete result = new DesireListComplete.DesireListBuilder().build(partitionedDesires.size(),
-                        perPage, page,
-                        partitionedDesires);
+        // return result;
+        // }
 
-                return result;
-            }
-
-            /* ################################################################### */
-        } catch (Exception e) {
-            // TODO: handle exception
-            System.out.println(e);
-            System.out.println("Redis Exception handled, Using DB instead");
-        }
+        // /* ################################################################### */
+        // } catch (Exception e) {
+        // // TODO: handle exception
+        // System.out.println(e);
+        // System.out.println("Redis Exception handled, Using DB instead");
+        // }
 
         try {
 

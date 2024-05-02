@@ -58,7 +58,7 @@ public interface DesiresRepository extends CrudRepository<Desires, UUID> {
             ) AS view_counts ON view_counts.desire_id = desires.id
             RIGHT JOIN desire_tags ON desire_tags.desire_id = desires.id
             LEFT JOIN tags ON tags.id = desire_tags.tag_id
-            WHERE tags.name LIKE %:filterBy% AND desires.id IS NOT NULL
+            WHERE tags.id LIKE %:filterBy% AND desires.id IS NOT NULL
             GROUP BY desires.id, users.first_name, users.last_name, desires.title, desires.description, desires.desired_price, desires.picture, desires.created, desires.is_closed, tags.name, bids_count, wants_count, views_count
             ORDER BY
                 CASE WHEN :sortBy = 'created:ASC'  THEN created END ASC,
