@@ -46,7 +46,8 @@ public class DesirePostControllers {
     @PostMapping(path = "/create")
     public @ResponseBody Desires createDesires(@RequestHeader("Authorization") String auth,
             @RequestBody CreateDesiresRqB request) {
-        if (request.title == null || request.description == null || request.price == null || request.tags_id == null)
+        if (request.title == null || request.description == null || request.metric == null || request.minPrice == null
+                || request.maxPrice == null || request.tags_id == null)
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad Input");
         try {
             String userId = tokenParser.getUserId(auth);
@@ -59,7 +60,10 @@ public class DesirePostControllers {
             desire.setCreated(new Timestamp(System.currentTimeMillis()));
             desire.setTitle(request.title);
             desire.setDescription(request.description);
-            desire.setDesiredPrice(request.price);
+            desire.setDesiredPrice((request.maxPrice + request.minPrice) / 2);
+            desire.setMinPrice(request.minPrice);
+            desire.setMaxPrice(request.maxPrice);
+            desire.setMetric(request.metric);
             desire.setIsClosed(0);
             desire.setOwnerId(userId);
             if (request.picture != null)

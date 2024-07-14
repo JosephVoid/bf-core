@@ -88,7 +88,10 @@ public class UserGetControllers {
                             Row[6],
                             Timestamp.valueOf(Row[7]),
                             // For tags
-                            new ArrayList<String>());
+                            new ArrayList<String>(),
+                            Double.parseDouble(Row[14]),
+                            Double.parseDouble(Row[15]),
+                            Row[13]);
                     dsr.tags.add(Row[9]);
                     desires.add(dsr);
                     createdDesires.add(dsr.id);

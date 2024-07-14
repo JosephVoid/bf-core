@@ -46,7 +46,8 @@ public class DesirePatchControllers {
             if (!desires.contains(id))
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not owner");
             /* Update the desire */
-            desiresRepository.updateDesire(id, body.title, body.description, body.price, body.picture);
+            desiresRepository.updateDesire(id, body.title, body.description, (body.minPrice + body.maxPrice) / 2,
+                    body.maxPrice, body.minPrice, body.metric, body.picture);
             /* Update the desire tags */
             if (body.tags_id != null && body.tags_id.length != 0) {
                 desireTagsRepository.deleteByDesireId(id);

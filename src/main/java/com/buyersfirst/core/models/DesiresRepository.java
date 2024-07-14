@@ -38,9 +38,13 @@ public interface DesiresRepository extends CrudRepository<Desires, UUID> {
                 tags.name AS tag_name,
                 COALESCE(bids_count, 0) AS bids,
                 COALESCE(wants_count, 0) AS wants,
-                COALESCE(views_count, 0) AS views
+                COALESCE(views_count, 0) AS views,
+                metrics.display AS metric,
+                desires.min_price,
+                desires.max_price
             FROM desires
             LEFT JOIN users ON users.id = desires.owner_id
+            LEFT JOIN metrics ON metrics.id = desires.metric
             LEFT JOIN (
                 SELECT desire_id, COUNT(id) AS bids_count
                 FROM bids
@@ -90,9 +94,13 @@ public interface DesiresRepository extends CrudRepository<Desires, UUID> {
                 tags.name AS tag_name,
                 COALESCE(bids_count, 0) AS bids,
                 COALESCE(wants_count, 0) AS wants,
-                COALESCE(views_count, 0) AS views
+                COALESCE(views_count, 0) AS views,
+                metrics.display AS metric,
+                desires.min_price,
+                desires.max_price
             FROM desires
             LEFT JOIN users ON users.id = desires.owner_id
+            LEFT JOIN metrics ON metrics.id = desires.metric
             LEFT JOIN (
                 SELECT desire_id, COUNT(id) AS bids_count
                 FROM bids
@@ -142,9 +150,13 @@ public interface DesiresRepository extends CrudRepository<Desires, UUID> {
                 tags.name AS tag_name,
                 COALESCE(bids_count, 0) AS bids,
                 COALESCE(wants_count, 0) AS wants,
-                COALESCE(views_count, 0) AS views
+                COALESCE(views_count, 0) AS views,
+                metrics.metric AS metric,
+                desires.min_price,
+                desires.max_price
             FROM desires
             LEFT JOIN users ON users.id = desires.owner_id
+            LEFT JOIN metrics ON metrics.id = desires.metric
             LEFT JOIN (
                 SELECT desire_id, COUNT(id) AS bids_count
                 FROM bids
@@ -177,10 +189,14 @@ public interface DesiresRepository extends CrudRepository<Desires, UUID> {
                     title = COALESCE(:title, title),
                     description = COALESCE(:desc, description),
                     desired_price = COALESCE(:price, desired_price),
+                    min_price = COALESCE(:minPrice, min_price),
+                    max_price = COALESCE(:maxPrice, max_price),
+                    metric = COALESCE(:metric, metric),
                     picture = COALESCE(:pic, picture)
                     WHERE desires.id = :id
             """, nativeQuery = true)
-    void updateDesire(String id, String title, String desc, Double price, String pic);
+    void updateDesire(String id, String title, String desc, Double price, Double maxPrice, Double minPrice,
+            String metric, String pic);
 
     /**
      * @param searchString Valid desire names
@@ -202,9 +218,13 @@ public interface DesiresRepository extends CrudRepository<Desires, UUID> {
                 tags.name AS tag_name,
                 COALESCE(bids_count, 0) AS bids,
                 COALESCE(wants_count, 0) AS wants,
-                COALESCE(views_count, 0) AS views
+                COALESCE(views_count, 0) AS views,
+                metrics.display AS metric,
+                desires.min_price,
+                desires.max_price
             FROM desires
             LEFT JOIN users ON users.id = desires.owner_id
+            LEFT JOIN metrics ON metrics.id = desires.metric
             LEFT JOIN (
                 SELECT desire_id, COUNT(id) AS bids_count
                 FROM bids

@@ -109,7 +109,10 @@ public class DesireGetControllers {
                             Row[6],
                             Timestamp.valueOf(Row[7]),
                             // For tags
-                            new ArrayList<String>());
+                            new ArrayList<String>(),
+                            Double.parseDouble(Row[14]),
+                            Double.parseDouble(Row[15]),
+                            Row[13]);
                     dsr.tags.add(Row[9]);
                     desires.add(dsr);
                     createdDesires.add(dsr.id);
@@ -169,7 +172,10 @@ public class DesireGetControllers {
                     // For Tags
                     new ArrayList<String>(),
                     // For Bid Ids
-                    new ArrayList<String>());
+                    new ArrayList<String>(),
+                    Double.parseDouble(dbResponse[0][14]),
+                    Double.parseDouble(dbResponse[0][15]),
+                    dbResponse[0][13]);
             /* Add the tags on the desire */
             for (int i = 0; i < dbResponse.length; i++) {
                 final String[] Row = dbResponse[i];
@@ -263,7 +269,10 @@ public class DesireGetControllers {
                             Row[6],
                             Timestamp.valueOf(Row[7]),
                             // For tags
-                            new ArrayList<String>());
+                            new ArrayList<String>(),
+                            Double.parseDouble(Row[14]),
+                            Double.parseDouble(Row[15]),
+                            Row[13]);
                     dsr.tags.add(Row[9]);
                     desires.add(dsr);
                     createdDesires.add(dsr.id);

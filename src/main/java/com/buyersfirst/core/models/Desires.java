@@ -54,6 +54,15 @@ public class Desires {
     @Column(name = "is_closed")
     private Integer IsClosed;
 
+    @Column(name = "metric")
+    private String Metric;
+
+    @Column(name = "min_price")
+    private Double MinPrice;
+
+    @Column(name = "max_price")
+    private Double MaxPrice;
+
     public String getOwnerId() {
         return OwnerId;
     }
@@ -108,5 +117,29 @@ public class Desires {
 
     public void setIsClosed(Integer isClosed) {
         IsClosed = isClosed;
+    }
+
+    public String getMetric() {
+        return Metric;
+    }
+
+    public void setMetric(String metric) {
+        Metric = metric;
+    }
+
+    public Double getMinPrice() {
+        return MinPrice;
+    }
+
+    public void setMinPrice(Double minPrice) {
+        MinPrice = minPrice;
+    }
+
+    public Double getMaxPrice() {
+        return MaxPrice;
+    }
+
+    public void setMaxPrice(Double maxPrice) {
+        MaxPrice = maxPrice;
     }
 }
