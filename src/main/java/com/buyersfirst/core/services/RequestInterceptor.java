@@ -1,18 +1,10 @@
 package com.buyersfirst.core.services;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.jose4j.jwt.JwtClaims;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-
 import com.buyersfirst.core.models.UsersRepository;
-
-import jakarta.security.auth.message.AuthException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -25,41 +17,7 @@ public class RequestInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object object) throws Exception {
-        try {
-            // // Allow documentation page
-            // if (request.getRequestURI().startsWith("/swagger-ui/")
-            // || request.getRequestURI().contains("/v3/api-docs"))
-            // return true;
-            // // Allow preflight requests
-            // if (request.getMethod().equals("OPTIONS"))
-            // return true;
-            // // // None JWT endpoint allow
-            // if (allowedRoutes.contains(request.getRequestURI()))
-            // return true;
-
-            // String token = request.getHeader("Authorization");
-
-            // if (token == null) {
-            // response.getWriter().write("Authorization needed");
-            // response.setStatus(401);
-            // return false;
-            // }
-
-            // JwtClaims claims = jwtBuilder.generateParseToken(token);
-            // String userId = claims.getClaimValue("userId").toString();
-            // if (usersRepository.findById(UUID.fromString(userId)).isPresent()) {
-            // request.setAttribute("userId", userId);
-            // return true;
-            // }
-
-            // return false;
-            return true;
-        } catch (Exception e) {
-            response.getWriter().write("Authorization Issue\n--------------\n");
-            response.getWriter().write(e.getLocalizedMessage());
-            response.setStatus(401);
-            return false;
-        }
+        return true;
     }
 
     @Override
