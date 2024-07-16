@@ -20,6 +20,8 @@ import com.buyersfirst.core.dto.SetAlert;
 import com.buyersfirst.core.models.AcceptedBidsRepository;
 import com.buyersfirst.core.models.BidsRepository;
 import com.buyersfirst.core.models.DesiresRepository;
+import com.buyersfirst.core.models.MetricRepository;
+import com.buyersfirst.core.models.Metrics;
 import com.buyersfirst.core.models.NotifyTags;
 import com.buyersfirst.core.models.NotifyTagsRepository;
 import com.buyersfirst.core.models.Tags;
@@ -53,6 +55,8 @@ public class OtherController {
     BidsRepository bidsRepository;
     @Autowired
     DesiresRepository desiresRepository;
+    @Autowired
+    MetricRepository metricRepository;
 
     @PostMapping(path = "/view/{type}/{itemId}")
     void viewItem(@RequestHeader("Authorization") String auth, @PathVariable String type,
@@ -125,6 +129,15 @@ public class OtherController {
     List<Tags> getTags() {
         try {
             return (List<Tags>) tagsRepository.findAll();
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    @GetMapping(path = "/metrics")
+    List<Metrics> getMetrics() {
+        try {
+            return (List<Metrics>) metricRepository.findAll();
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         }
