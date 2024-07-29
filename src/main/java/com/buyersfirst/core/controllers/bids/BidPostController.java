@@ -100,7 +100,7 @@ public class BidPostController {
             if (!bid.isPresent())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bid does not exist");
             /* Check if the bid is not accepted by the user */
-            if (bid.get().getOwnerId() == userId)
+            if (bid.get().getOwnerId().equals(userId))
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't accept your own bid");
             /* Check if the bid is accepted before */
             List<AcceptedBids> acceptedBids = acceptedBidsRepository.findByBidIdAndUserId(bidId, userId);
@@ -115,7 +115,7 @@ public class BidPostController {
             // if (desire.getOwnerId() == userId)
             // desiresRepository.UpdateIsClosedStatus(desire.getId().toString(), 1);
 
-            alertUsers.alertOnBidAccept(bid.get().getOwnerId(), bid.get().getDesireId());
+            alertUsers.alertOnBidAccept(bid.get().getOwnerId(), bid.get().getDesireId(), userId);
 
             return bid.get();
 

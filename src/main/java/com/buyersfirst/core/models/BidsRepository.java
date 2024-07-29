@@ -16,6 +16,9 @@ public interface BidsRepository extends CrudRepository<Bids, UUID> {
     @Query("SELECT bd.DesireId FROM Bids bd where bd.OwnerId = ?1")
     List<String> findBidForIdByUserId(String id);
 
+    @Query("SELECT bd.id FROM Bids bd where bd.OwnerId = ?1")
+    List<String> findBidId_ForUserId(String id);
+
     @Query(value = """
                 SELECT bids.*, users.first_name, users.last_name FROM bids
                 JOIN users ON users.id = bids.owner_id

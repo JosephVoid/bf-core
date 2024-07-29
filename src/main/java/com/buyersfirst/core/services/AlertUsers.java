@@ -73,13 +73,13 @@ public class AlertUsers {
         return true;
     }
 
-    public boolean alertOnBidAccept(String bidOwnerId, String desireId) {
+    public boolean alertOnBidAccept(String bidOwnerId, String desireId, String acceptorId) {
         Desires desire = desiresRepository.findById(UUID.fromString(desireId)).get();
-        Users desireOwner = usersRepository.findById(UUID.fromString(desire.getOwnerId())).get();
+        Users bidAcceptor = usersRepository.findById(UUID.fromString(acceptorId)).get();
         Users bidOwner = usersRepository.findById(UUID.fromString(bidOwnerId)).get();
         String templateString = String.format(
                 "Your offer for '%s', has been accepted. Contact %s [%s]",
-                truncateStr(desire.getTitle()), desireOwner.getFirst_name(), desireOwner.getPhone());
+                truncateStr(desire.getTitle()), bidAcceptor.getFirst_name(), bidAcceptor.getPhone());
         System.out.println(bidOwner.getPhone() + " : " + templateString);
         if (!notificationService.sendSMS(bidOwner.getPhone(), templateString))
             return false;

@@ -148,8 +148,10 @@ public class OtherController {
         switch (type) {
             case "wanted":
                 return userWantsRepository.findWantsByUser(id);
-            case "offered":
+            case "offered-to-desire":
                 return bidsRepository.findBidForIdByUserId(id);
+            case "bid-offered":
+                return bidsRepository.findBidId_ForUserId(id);
             case "accepted":
                 return acceptedBidsRepository.findAcceptedBidByUser(id);
             case "posted-desire":
