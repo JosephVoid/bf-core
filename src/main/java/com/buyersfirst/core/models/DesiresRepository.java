@@ -153,7 +153,8 @@ public interface DesiresRepository extends CrudRepository<Desires, UUID> {
                 COALESCE(views_count, 0) AS views,
                 metrics.metric AS metric,
                 desires.min_price,
-                desires.max_price
+                desires.max_price,
+                users.id
             FROM desires
             LEFT JOIN users ON users.id = desires.owner_id
             LEFT JOIN metrics ON metrics.id = desires.metric

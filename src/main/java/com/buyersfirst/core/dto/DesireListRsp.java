@@ -8,6 +8,7 @@ public class DesireListRsp {
     public String title;
     public String description;
     public String postedBy;
+    public String userPostedId;
     public Double price;
     public Double minPrice;
     public Double maxPrice;
@@ -23,13 +24,15 @@ public class DesireListRsp {
     public DesireListRsp() {
     }
 
-    public DesireListRsp(String id, String title, String description, String postedBy, Double price, Integer views,
+    public DesireListRsp(String id, String title, String description, String postedBy, String userPostedId,
+            Double price, Integer views,
             Integer wants, Integer bids, boolean isClosed, String picture, Timestamp postedOn, ArrayList<String> tags,
             Double minPrice, Double maxPrice, String metric) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.postedBy = postedBy;
+        this.userPostedId = userPostedId;
         this.price = price;
         this.views = views;
         this.wants = wants;
