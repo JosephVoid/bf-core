@@ -124,6 +124,7 @@ public class UserGetControllers {
                         Row[3],
                         Row[5],
                         Row[8] + " " + Row[9],
+                        Row[2],
                         Timestamp.valueOf(Row[6]),
                         Boolean.parseBoolean(Row[7])));
             }

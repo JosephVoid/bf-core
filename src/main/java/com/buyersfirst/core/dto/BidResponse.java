@@ -8,6 +8,7 @@ public class BidResponse {
     public String description;
     public String picture;
     public String bidder;
+    public String bidder_id;
     public String bidder_phone;
     public String bidder_email;
     public String bidder_description;
@@ -15,18 +16,21 @@ public class BidResponse {
     public Timestamp bidOn;
     public boolean isClosed;
 
-    public BidResponse(String id, Double price, String description, String picture, String bidder, Timestamp bidOn,
+    public BidResponse(String id, Double price, String description, String picture, String bidder, String bidder_id,
+            Timestamp bidOn,
             boolean isClosed) {
         this.id = id;
         this.price = price;
         this.description = description;
         this.picture = picture;
         this.bidder = bidder;
+        this.bidder_id = bidder_id;
         this.bidOn = bidOn;
         this.isClosed = isClosed;
     }
 
-    public BidResponse(String id, Double price, String description, String picture, String bidder, String bidder_phone,
+    public BidResponse(String id, Double price, String description, String picture, String bidder, String bidder_id,
+            String bidder_phone,
             String bidder_email, String desc, String bidder_pic, Timestamp bidOn,
             boolean isClosed) {
         this.id = id;
@@ -34,6 +38,7 @@ public class BidResponse {
         this.description = description;
         this.picture = picture;
         this.bidder = bidder;
+        this.bidder_id = bidder_id;
         this.bidder_phone = bidder_phone;
         this.bidder_email = bidder_email;
         this.bidder_description = desc;
