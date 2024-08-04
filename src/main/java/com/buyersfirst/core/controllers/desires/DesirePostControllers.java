@@ -95,7 +95,7 @@ public class DesirePostControllers {
             if (!oldDesire.isPresent())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire does not exist");
             /* Close the previous desire */
-            desiresRepository.UpdateIsClosedStatus(oldDesire.get().getId().toString(), 1);
+            desiresRepository.UpdateIsClosedStatus(oldDesire.get().getId(), 1);
             /* Save desire */
             Desires desire = new Desires();
             desire.setCreated(new Timestamp(System.currentTimeMillis()));
@@ -135,12 +135,13 @@ public class DesirePostControllers {
         try {
             tokenParser.getUserId(auth);
             /* Check if the desire is there */
+            System.out.println(UUID.fromString(id).toString());
             Optional<Desires> desire = desiresRepository.findById(UUID.fromString(id));
             if (!desire.isPresent())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire does not exist");
             /* Close the desire if not closed already */
             if (desire.get().getIsClosed() == 0)
-                desiresRepository.UpdateIsClosedStatus(id, 1);
+                desiresRepository.UpdateIsClosedStatus(UUID.fromString(id), 1);
             else
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire already closed");
             return desiresRepository.findById(UUID.fromString(id)).get();
@@ -151,6 +152,7 @@ public class DesirePostControllers {
             throw e;
         } catch (Exception e) {
             System.out.println(e);
+            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Error");
         }
     }
@@ -167,7 +169,7 @@ public class DesirePostControllers {
             if (userWantsRepository.findByDesireUserId(id, userId).size() > 0)
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Desire already wanted by user");
             /* Check if the user is not the owner of the desire */
-            if (desire.get().getOwnerId() == userId)
+            if (desire.get().getOwnerId().equals(userId))
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't want your own desire");
             /* Want the desire */
             userWantsRepository.addUserWants(id, userId, new Timestamp(System.currentTimeMillis()));

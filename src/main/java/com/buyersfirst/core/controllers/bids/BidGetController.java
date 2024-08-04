@@ -40,6 +40,7 @@ public class BidGetController {
                         Row[3],
                         Row[5],
                         Row[8] + " " + Row[9],
+                        "",
                         Timestamp.valueOf(Row[6]),
                         Boolean.parseBoolean(Row[7])));
             }
@@ -64,6 +65,7 @@ public class BidGetController {
                     dbResponse[0][3],
                     dbResponse[0][5],
                     dbResponse[0][9] + " " + dbResponse[0][10],
+                    dbResponse[0][2],
                     dbResponse[0][15], //
                     dbResponse[0][11],
                     dbResponse[0][14],

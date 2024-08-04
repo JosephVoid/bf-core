@@ -56,5 +56,5 @@ public interface BidsRepository extends CrudRepository<Bids, UUID> {
     @Modifying(clearAutomatically = true)
     @Transactional
     @Query("UPDATE Bids SET IsClosed = ?2 where id = ?1")
-    void UpdateIsClosedStatus(String id, Integer status);
+    void UpdateIsClosedStatus(UUID id, Integer status);
 }

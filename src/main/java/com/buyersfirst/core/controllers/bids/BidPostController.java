@@ -99,6 +99,9 @@ public class BidPostController {
             Optional<Bids> bid = bidsRepository.findById(UUID.fromString(bidId));
             if (!bid.isPresent())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bid does not exist");
+            /* Check if the bid is not closed */
+            if (bid.get().getIsClosed() == 1)
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bid is closed");
             /* Check if the bid is not accepted by the user */
             if (bid.get().getOwnerId().equals(userId))
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't accept your own bid");
@@ -138,10 +141,10 @@ public class BidPostController {
             if (!bid.isPresent())
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bid does not exist");
             /* Check if the bid is not accepted by the user */
-            if (bid.get().getOwnerId() != userId)
+            if (!bid.get().getOwnerId().equals(userId))
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't close others bid");
             if (bid.get().getIsClosed() == 0)
-                bidsRepository.UpdateIsClosedStatus(bidId, 1);
+                bidsRepository.UpdateIsClosedStatus(UUID.fromString(bidId), 1);
             else
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bid already closed");
 

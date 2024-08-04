@@ -80,6 +80,7 @@ public class UserGetControllers {
                             Row[3],
                             Row[4],
                             Row[1] + " " + Row[2],
+                            "",
                             Double.parseDouble(Row[5]),
                             Integer.parseInt(Row[12]),
                             Integer.parseInt(Row[11]),
@@ -123,6 +124,7 @@ public class UserGetControllers {
                         Row[3],
                         Row[5],
                         Row[8] + " " + Row[9],
+                        Row[2],
                         Timestamp.valueOf(Row[6]),
                         Boolean.parseBoolean(Row[7])));
             }
