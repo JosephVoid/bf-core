@@ -13,7 +13,7 @@ public interface DesiresRepository extends CrudRepository<Desires, UUID> {
     @Modifying(clearAutomatically = true)
     @Transactional
     @Query("UPDATE Desires SET IsClosed = ?2 where id = ?1")
-    void UpdateIsClosedStatus(String id, Integer status);
+    void UpdateIsClosedStatus(UUID id, Integer status);
 
     @Query("SELECT d.id FROM Desires d where d.OwnerId = ?1")
     List<String> findDesiresCreatedByUserId(String id);
